@@ -28,7 +28,7 @@ type Timeouts struct {
 
 func NewAppConfig() AppConfig {
 	return AppConfig{
-		Port: ":" + tools.GetEnv("PORT", "8080"),
+		Port: tools.GetEnv("PORT", "8080"),
 
 		Services: Services{
 			History:    tools.GetEnv("HISTORY_SERVICE", "localhost:50051"),
