@@ -21,6 +21,7 @@ func NewAppRouter(hds *Handlers, cfg *configs.AppConfig, log *slog.Logger) http.
 	})
 
 	rtr := middlewares.Log(mux, log)
+	rtr = middlewares.Auth(rtr, log, cfg.Keys)
 	rtr = middlewares.Recovery(rtr, log)
 
 	return rtr

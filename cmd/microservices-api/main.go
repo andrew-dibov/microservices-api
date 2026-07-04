@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	"microservices-api/internal/clients"
 	"microservices-api/internal/configs"
 	"microservices-api/internal/handlers"
@@ -8,7 +9,6 @@ import (
 
 	"context"
 	"errors"
-	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -17,24 +17,30 @@ import (
 
 func main() {
 	cfg := configs.NewAppConfig()
-	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	log.Info("app config loaded",
-		"port", cfg.Port, "history", cfg.Services.History, "currency", cfg.Services.Currency, "conversion", cfg.Services.Conversion)
+	var hand slog.Handler
+	if cfg.Prod {
+		hand = slog.NewJSONHandler(os.Stdout, nil)
+	} else {
+		hand = slog.NewTextHandler(os.Stdout, nil)
+	}
 
-	curr, err := clients.NewCurrencyClient(cfg.Services.Currency, cfg.Timeouts.Currency)
+	log := slog.New(hand)
+	log.Info("app config loaded", "port", cfg.Port, "history", cfg.Services.History, "currency", cfg.Services.Currency, "conversion", cfg.Services.Conversion)
+
+	currency, err := clients.NewCurrencyClient(cfg.Services.Currency, cfg.Timeouts.Currency)
 	if err != nil {
 		log.Error("currency client failed", "error", err)
 		os.Exit(1)
 	}
-	defer curr.Close()
+	defer currency.Close()
 
-	conv, err := clients.NewConversionClient(cfg.Services.Conversion, cfg.Timeouts.Conversion)
+	conversion, err := clients.NewConversionClient(cfg.Services.Conversion, cfg.Timeouts.Conversion)
 	if err != nil {
 		log.Error("conversion client failed", "error", err)
 		os.Exit(1)
 	}
-	defer conv.Close()
+	defer conversion.Close()
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,
@@ -43,8 +49,8 @@ func main() {
 		WriteTimeout: cfg.Timeouts.Write,
 
 		Handler: routers.NewAppRouter(&routers.Handlers{
-			Currency:   handlers.NewCurrencyHandler(curr, &cfg, log),
-			Conversion: handlers.NewConversionHandler(conv, &cfg, log),
+			Currency:   handlers.NewCurrencyHandler(currency, &cfg, log),
+			Conversion: handlers.NewConversionHandler(conversion, &cfg, log),
 		}, &cfg, log),
 	}
 

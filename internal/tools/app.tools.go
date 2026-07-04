@@ -3,6 +3,7 @@ package tools
 import (
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -31,4 +32,28 @@ func GetIntEnv(key string, def int) int {
 		}
 	}
 	return def
+}
+
+func GetBolEnv(key string, def bool) bool {
+	if str := os.Getenv(key); str != "" {
+		if val, err := strconv.ParseBool(str); err == nil {
+			return val
+		}
+	}
+	return def
+}
+
+func GetKysEnv(key string, def map[string]bool) map[string]bool {
+	str := os.Getenv(key)
+	kys := make(map[string]bool)
+
+	if str != "" {
+		for _, key := range strings.Split(str, ",") {
+			kys[strings.TrimSpace(key)] = true
+		}
+	} else {
+		kys = def
+	}
+
+	return kys
 }

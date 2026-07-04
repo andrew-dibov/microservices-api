@@ -3,7 +3,10 @@ package configs
 import "time"
 
 type AppConfig struct {
+	Prod bool
 	Port string
+
+	Keys map[string]bool
 
 	Services Services
 	Timeouts Timeouts

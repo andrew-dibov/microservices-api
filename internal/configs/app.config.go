@@ -8,12 +8,15 @@ import (
 
 func NewAppConfig() AppConfig {
 	return AppConfig{
+		Prod: tools.GetBolEnv("PROD", false),
 		Port: tools.GetStrEnv("PORT", "8080"),
 
+		Keys: tools.GetKysEnv("KEYS", map[string]bool{}),
+
 		Services: Services{
-			History:    tools.GetStrEnv("HISTORY_SERVICE", "localhost:50051"),
-			Currency:   tools.GetStrEnv("CURRENCY_SERVICE", "localhost:50052"),
-			Conversion: tools.GetStrEnv("CONVERSION_SERVICE", "localhost:50053"),
+			History:    tools.GetStrEnv("HISTORY", "localhost:50051"),
+			Currency:   tools.GetStrEnv("CURRENCY", "localhost:50052"),
+			Conversion: tools.GetStrEnv("CONVERSION", "localhost:50053"),
 		},
 
 		Timeouts: Timeouts{
@@ -28,10 +31,12 @@ func NewAppConfig() AppConfig {
 		},
 
 		Limits: Limits{
-			RateLimit:    tools.GetIntEnv("RATE_LIMIT", 5),
-			RateBurst:    tools.GetIntEnv("RATE_BURST", 10),
-			RatesLimit:   tools.GetIntEnv("RATES_LIMIT", 5),
-			RatesBurst:   tools.GetIntEnv("RATES_BURST", 10),
+			RateLimit: tools.GetIntEnv("RATE_LIMIT", 5),
+			RateBurst: tools.GetIntEnv("RATE_BURST", 10),
+
+			RatesLimit: tools.GetIntEnv("RATES_LIMIT", 5),
+			RatesBurst: tools.GetIntEnv("RATES_BURST", 10),
+
 			ConvertLimit: tools.GetIntEnv("CONVERT_LIMIT", 5),
 			ConvertBurst: tools.GetIntEnv("CONVERT_BURST", 10),
 		},
