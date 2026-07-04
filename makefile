@@ -1,5 +1,4 @@
 generate:
-		protoc --go_out=. --go-grpc_out=. proto/history/history.proto
 		protoc --go_out=. --go-grpc_out=. proto/currency/currency.proto
 		protoc --go_out=. --go-grpc_out=. proto/conversion/conversion.proto
 

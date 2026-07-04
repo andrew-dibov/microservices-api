@@ -7,7 +7,6 @@ service Conversion {
   rpc Convert(ConvertRequest) returns (ConvertResponse);
 }
 
-
 message ConvertRequest {
   string from_currency = 1;
   string to_currency = 2;

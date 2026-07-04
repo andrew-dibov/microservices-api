@@ -4,28 +4,26 @@ package currency;
 option go_package = "pkg/api/currency";
 
 service Currency {
-  rpc GetRate(GetRateRequest) returns (GetRateResponse);
-  rpc GetAllRates(GetAllRatesRequest) returns (GetAllRatesResponse);
+  rpc GetRate(RateRequest) returns (RateResponse);
+  rpc GetAllRates(RatesRequest) returns (RatesResponse);
 }
 
-
-message GetRateRequest {
+message RateRequest {
   string from_currency = 1;
   string to_currency = 2;
 }
 
-message GetRateResponse {
+message RateResponse {
   string from_currency = 1;
   string to_currency = 2;
   double rate = 3;
 }
 
-
-message GetAllRatesRequest {
+message RatesRequest {
   string base_currency = 1;
 }
 
-message GetAllRatesResponse {
+message RatesResponse {
   string base_currency = 1;
   map<string, double> rates = 2;
 }

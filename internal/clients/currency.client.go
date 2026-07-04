@@ -3,7 +3,7 @@ package clients
 import (
 	"context"
 	"fmt"
-	"microservices-api/pkg/api/conversion"
+	"microservices-api/pkg/api/currency"
 	"time"
 
 	"google.golang.org/grpc"
@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 )
 
-func NewConversionClient(addr string, tout time.Duration) (*ConversionClient, error) {
+func NewCurrencyClient(addr string, tout time.Duration) (*CurrencyClient, error) {
 	conn, err := grpc.NewClient(addr,
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(4*1024*1024), grpc.MaxCallSendMsgSize(4*1024*1024)),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: 10 * time.Second, Timeout: 1 * time.Second}),
@@ -19,7 +19,7 @@ func NewConversionClient(addr string, tout time.Duration) (*ConversionClient, er
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(`{
 		"loadBalancingPolicy": "round_robin",
-		"methodConfig": [{ "name": [{"service": "conversion.Conversion"}],
+		"methodConfig": [{ "name": [{"service": "currency.Currency"}],
 			"retryPolicy": {
 				"maxAttempts": 3,
 				"maxBackoff": "1s",
@@ -31,30 +31,38 @@ func NewConversionClient(addr string, tout time.Duration) (*ConversionClient, er
 		}`))
 
 	if err != nil {
-		return nil, fmt.Errorf("conversion client : %w", err)
+		return nil, fmt.Errorf("currency client : %w", err)
 	}
 
-	return &ConversionClient{
-		grpc: conversion.NewConversionClient(conn),
+	return &CurrencyClient{
+		grpc: currency.NewCurrencyClient(conn),
 		conn: conn,
 		tout: tout,
 	}, nil
 }
 
-func (cl *ConversionClient) Close() error {
+func (cl *CurrencyClient) Close() error {
 	if cl.conn != nil {
 		return cl.conn.Close()
 	}
 	return nil
 }
 
-func (cl *ConversionClient) Convert(ctx context.Context, fromCurrency string, toCurrency string, amount float64) (*conversion.ConvertResponse, error) {
+func (cl *CurrencyClient) GetRate(ctx context.Context, fromCurrency string, toCurrency string) (*currency.RateResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, cl.tout)
 	defer cancel()
 
-	return cl.grpc.Convert(ctx, &conversion.ConvertRequest{
+	return cl.grpc.GetRate(ctx, &currency.RateRequest{
 		FromCurrency: fromCurrency,
 		ToCurrency:   toCurrency,
-		Amount:       amount,
+	})
+}
+
+func (cl *CurrencyClient) GetAllRates(ctx context.Context, baseCurrency string) (*currency.RatesResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, cl.tout)
+	defer cancel()
+
+	return cl.grpc.GetAllRates(ctx, &currency.RatesRequest{
+		BaseCurrency: baseCurrency,
 	})
 }
