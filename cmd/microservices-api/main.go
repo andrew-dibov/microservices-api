@@ -56,6 +56,7 @@ func main() {
 		WriteTimeout: cfg.Timeouts.Write,
 
 		Handler: routers.NewAppRouter(&routers.Handlers{
+			App:  handlers.NewAppHandler(curr, conv, log),
 			Curr: handlers.NewCurrHandler(curr, &cfg, log),
 			Conv: handlers.NewConvHandler(conv, &cfg, log),
 		}, &cfg, log),

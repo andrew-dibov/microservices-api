@@ -13,8 +13,8 @@ func NewAppConfig() AppConfig {
 		Prod: tools.GetBoolEnv("PROD", false),
 		Keys: tools.GetKeysEnv("KEYS", map[string]bool{}),
 		Open: tools.GetKeysEnv("OPEN", map[string]bool{
-			"/health": true,
-			"/metric": true,
+			"/live":  true,
+			"/ready": true,
 		}),
 
 		Services: Services{

@@ -11,15 +11,12 @@ import (
 func NewAppRouter(hs *Handlers, cfg *configs.AppConfig, log *slog.Logger) http.Handler {
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("GET /live", hs.App.Live)
+	mux.HandleFunc("GET /ready", hs.App.Ready)
+
 	mux.HandleFunc("GET /api/v1/rate", hs.Curr.Rate)
 	mux.HandleFunc("GET /api/v1/rates", hs.Curr.Rates)
-
 	mux.HandleFunc("POST /api/v1/convert", hs.Conv.Convert)
-
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	})
 
 	rtr := middlewares.Log(mux, log)
 	rtr = middlewares.Recover(rtr, log)

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 )
@@ -40,6 +41,14 @@ func NewCurrClient(addr string, tout time.Duration) (*CurrClient, error) {
 		conn: conn,
 		tout: tout,
 	}, nil
+}
+
+func (cl *CurrClient) Health(ctx context.Context) error {
+	state := cl.conn.GetState()
+	if state == connectivity.TransientFailure || state == connectivity.Shutdown {
+		return fmt.Errorf("connection state : %s", state)
+	}
+	return nil
 }
 
 func (cl *CurrClient) Close() error {
