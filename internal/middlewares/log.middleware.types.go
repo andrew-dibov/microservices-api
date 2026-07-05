@@ -2,12 +2,12 @@ package middlewares
 
 import "net/http"
 
-type statusWriter struct {
+type statWriter struct {
 	http.ResponseWriter
 	status int
 }
 
-func (sw *statusWriter) WriteHeader(code int) {
+func (sw *statWriter) WriteHeader(code int) {
 	sw.status = code
 	sw.ResponseWriter.WriteHeader(code)
 }

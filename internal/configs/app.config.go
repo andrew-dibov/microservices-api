@@ -8,36 +8,39 @@ import (
 
 func NewAppConfig() AppConfig {
 	return AppConfig{
-		Prod: tools.GetBolEnv("PROD", false),
 		Port: tools.GetStrEnv("PORT", "8080"),
 
-		Keys: tools.GetKysEnv("KEYS", map[string]bool{}),
+		Prod: tools.GetBoolEnv("PROD", false),
+		Keys: tools.GetKeysEnv("KEYS", map[string]bool{}),
+		Open: tools.GetKeysEnv("OPEN", map[string]bool{
+			"/health": true,
+			"/metric": true,
+		}),
 
 		Services: Services{
-			History:    tools.GetStrEnv("HISTORY", "localhost:50051"),
-			Currency:   tools.GetStrEnv("CURRENCY", "localhost:50052"),
-			Conversion: tools.GetStrEnv("CONVERSION", "localhost:50053"),
+			Hist: tools.GetStrEnv("HIST_ADDR", "localhost:50051"),
+			Curr: tools.GetStrEnv("CURR_ADDR", "localhost:50052"),
+			Conv: tools.GetStrEnv("CONV_ADDR", "localhost:50053"),
 		},
 
 		Timeouts: Timeouts{
-			Read:     tools.GetDurEnv("READ_TIMEOUT", 10*time.Second),
-			Idle:     tools.GetDurEnv("IDLE_TIMEOUT", 15*time.Second),
-			Write:    tools.GetDurEnv("WRITE_TIMEOUT", 20*time.Second),
-			Shutdown: tools.GetDurEnv("SHUTDOWN_TIMEOUT", 25*time.Second),
+			Hist: tools.GetDurEnv("HIST_TOUT", 5*time.Second),
+			Curr: tools.GetDurEnv("CURR_TOUT", 5*time.Second),
+			Conv: tools.GetDurEnv("CONV_TOUT", 5*time.Second),
 
-			History:    tools.GetDurEnv("HISTORY_TIMEOUT", 5*time.Second),
-			Currency:   tools.GetDurEnv("CURRENCY_TIMEOUT", 5*time.Second),
-			Conversion: tools.GetDurEnv("CONVERSION_TIMEOUT", 5*time.Second),
+			Read:     tools.GetDurEnv("READ_TOUT", 10*time.Second),
+			Idle:     tools.GetDurEnv("IDLE_TOUT", 15*time.Second),
+			Write:    tools.GetDurEnv("WRITE_TOUT", 20*time.Second),
+			Shutdown: tools.GetDurEnv("SHUTDOWN_TOUT", 25*time.Second),
 		},
 
 		Limits: Limits{
-			RateLimit: tools.GetIntEnv("RATE_LIMIT", 5),
-			RateBurst: tools.GetIntEnv("RATE_BURST", 10),
-
-			RatesLimit: tools.GetIntEnv("RATES_LIMIT", 5),
-			RatesBurst: tools.GetIntEnv("RATES_BURST", 10),
-
+			RateLimit:    tools.GetIntEnv("RATE_LIMIT", 5),
+			RatesLimit:   tools.GetIntEnv("RATES_LIMIT", 5),
 			ConvertLimit: tools.GetIntEnv("CONVERT_LIMIT", 5),
+
+			RateBurst:    tools.GetIntEnv("RATE_BURST", 10),
+			RatesBurst:   tools.GetIntEnv("RATES_BURST", 10),
 			ConvertBurst: tools.GetIntEnv("CONVERT_BURST", 10),
 		},
 	}

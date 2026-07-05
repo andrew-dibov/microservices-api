@@ -8,12 +8,13 @@ import (
 	"net/http"
 )
 
-func NewAppRouter(hds *Handlers, cfg *configs.AppConfig, log *slog.Logger) http.Handler {
+func NewAppRouter(hs *Handlers, cfg *configs.AppConfig, log *slog.Logger) http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /api/v1/rate", hds.Currency.Rate)
-	mux.HandleFunc("GET /api/v1/rates", hds.Currency.Rates)
-	mux.HandleFunc("POST /api/v1/convert", hds.Conversion.Convert)
+	mux.HandleFunc("GET /api/v1/rate", hs.Curr.Rate)
+	mux.HandleFunc("GET /api/v1/rates", hs.Curr.Rates)
+
+	mux.HandleFunc("POST /api/v1/convert", hs.Conv.Convert)
 
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -21,8 +22,8 @@ func NewAppRouter(hds *Handlers, cfg *configs.AppConfig, log *slog.Logger) http.
 	})
 
 	rtr := middlewares.Log(mux, log)
-	rtr = middlewares.Auth(rtr, log, cfg.Keys)
-	rtr = middlewares.Recovery(rtr, log)
+	rtr = middlewares.Recover(rtr, log)
+	rtr = middlewares.Auth(rtr, log, cfg.Keys, cfg.Open)
 
 	return rtr
 }

@@ -1,9 +1,10 @@
 package clients
 
 import (
+	"microservices-api/pkg/api/conversion"
+
 	"context"
 	"fmt"
-	"microservices-api/pkg/api/conversion"
 	"time"
 
 	"google.golang.org/grpc"
@@ -11,7 +12,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 )
 
-func NewConversionClient(addr string, tout time.Duration) (*ConversionClient, error) {
+func NewConvClient(addr string, tout time.Duration) (*ConvClient, error) {
 	conn, err := grpc.NewClient(addr,
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(4*1024*1024), grpc.MaxCallSendMsgSize(4*1024*1024)),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: 10 * time.Second, Timeout: 1 * time.Second}),
@@ -31,26 +32,26 @@ func NewConversionClient(addr string, tout time.Duration) (*ConversionClient, er
 		}`))
 
 	if err != nil {
-		return nil, fmt.Errorf("conversion client : %w", err)
+		return nil, fmt.Errorf("failed to init : %w", err)
 	}
 
-	return &ConversionClient{
+	return &ConvClient{
 		grpc: conversion.NewConversionClient(conn),
 		conn: conn,
 		tout: tout,
 	}, nil
 }
 
-func (cl *ConversionClient) Close() error {
+func (cl *ConvClient) Close() error {
 	if cl.conn != nil {
 		return cl.conn.Close()
 	}
 	return nil
 }
 
-func (cl *ConversionClient) Convert(ctx context.Context, fromCurrency string, toCurrency string, amount float64) (*conversion.ConvertResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, cl.tout)
-	defer cancel()
+func (cl *ConvClient) Convert(ctx context.Context, fromCurrency string, toCurrency string, amount float64) (*conversion.ConvertResponse, error) {
+	ctx, can := context.WithTimeout(ctx, cl.tout)
+	defer can()
 
 	return cl.grpc.Convert(ctx, &conversion.ConvertRequest{
 		FromCurrency: fromCurrency,

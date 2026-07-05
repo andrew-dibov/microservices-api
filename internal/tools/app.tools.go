@@ -11,17 +11,6 @@ func GetStrEnv(key string, def string) string {
 	if val := os.Getenv(key); val != "" {
 		return val
 	}
-
-	return def
-}
-
-func GetDurEnv(key string, def time.Duration) time.Duration {
-	if str := os.Getenv(key); str != "" {
-		if val, err := time.ParseDuration(str); err == nil {
-			return val
-		}
-	}
-
 	return def
 }
 
@@ -34,7 +23,7 @@ func GetIntEnv(key string, def int) int {
 	return def
 }
 
-func GetBolEnv(key string, def bool) bool {
+func GetBoolEnv(key string, def bool) bool {
 	if str := os.Getenv(key); str != "" {
 		if val, err := strconv.ParseBool(str); err == nil {
 			return val
@@ -43,17 +32,26 @@ func GetBolEnv(key string, def bool) bool {
 	return def
 }
 
-func GetKysEnv(key string, def map[string]bool) map[string]bool {
+func GetDurEnv(key string, def time.Duration) time.Duration {
+	if str := os.Getenv(key); str != "" {
+		if val, err := time.ParseDuration(str); err == nil {
+			return val
+		}
+	}
+	return def
+}
+
+func GetKeysEnv(key string, def map[string]bool) map[string]bool {
 	str := os.Getenv(key)
-	kys := make(map[string]bool)
+	keys := make(map[string]bool)
 
 	if str != "" {
-		for _, key := range strings.Split(str, ",") {
-			kys[strings.TrimSpace(key)] = true
+		for _, k := range strings.Split(str, ",") {
+			keys[strings.TrimSpace(k)] = true
 		}
 	} else {
-		kys = def
+		keys = def
 	}
 
-	return kys
+	return keys
 }

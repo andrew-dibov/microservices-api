@@ -1,19 +1,20 @@
 package handlers
 
 import (
-	"log/slog"
 	"microservices-api/internal/clients"
+
+	"log/slog"
 
 	"golang.org/x/time/rate"
 )
 
-type ConversionHandler struct {
-	cl  *clients.ConversionClient
+type ConvHandler struct {
+	c   *clients.ConvClient
 	log *slog.Logger
-	lim ConversionLimits
+	lim ConvLimits
 }
 
-type ConversionLimits struct {
+type ConvLimits struct {
 	convert *rate.Limiter
 }
 

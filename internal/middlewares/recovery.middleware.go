@@ -1,23 +1,31 @@
 package middlewares
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
 )
 
-func Recovery(nxt http.Handler, log *slog.Logger) http.Handler {
+func Recover(n http.Handler, log *slog.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			if rc := recover(); rc != nil {
-				log.Error("http server panicked",
-					"path", r.URL.Path, "method", r.Method, "recover", rc)
+			if rec := recover(); rec != nil {
+				log.Error("internal error",
+					"path", r.URL.Path,
+					"method", r.Method,
+					"recover", rec,
+				)
 
-				w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte("Internal Server Error\n"))
+				if err := json.NewEncoder(w).Encode(map[string]string{"error": "Internal Server Error"}); err != nil {
+					log.Error("json response failed",
+						"error", err,
+					)
+				}
 			}
 		}()
 
-		nxt.ServeHTTP(w, r)
+		n.ServeHTTP(w, r)
 	})
 }

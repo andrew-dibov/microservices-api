@@ -1,19 +1,20 @@
 package handlers
 
 import (
-	"log/slog"
 	"microservices-api/internal/clients"
+
+	"log/slog"
 
 	"golang.org/x/time/rate"
 )
 
-type CurrencyHandler struct {
-	cl  *clients.CurrencyClient
+type CurrHandler struct {
+	c   *clients.CurrClient
 	log *slog.Logger
-	lim CurrencyLimits
+	lim CurrLimits
 }
 
-type CurrencyLimits struct {
+type CurrLimits struct {
 	rate  *rate.Limiter
 	rates *rate.Limiter
 }

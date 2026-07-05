@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log/slog"
 	"microservices-api/internal/clients"
 	"microservices-api/internal/configs"
 	"microservices-api/internal/handlers"
@@ -9,6 +8,7 @@ import (
 
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -18,29 +18,36 @@ import (
 func main() {
 	cfg := configs.NewAppConfig()
 
-	var hand slog.Handler
-	if cfg.Prod {
-		hand = slog.NewJSONHandler(os.Stdout, nil)
-	} else {
-		hand = slog.NewTextHandler(os.Stdout, nil)
-	}
+	log := slog.New(map[bool]slog.Handler{
+		true:  slog.NewJSONHandler(os.Stdout, nil),
+		false: slog.NewTextHandler(os.Stdout, nil),
+	}[cfg.Prod])
 
-	log := slog.New(hand)
-	log.Info("app config loaded", "port", cfg.Port, "history", cfg.Services.History, "currency", cfg.Services.Currency, "conversion", cfg.Services.Conversion)
+	log.Info("app config",
+		"port", cfg.Port,
+		"prod", cfg.Prod,
+		"history", cfg.Services.Hist,
+		"currency", cfg.Services.Curr,
+		"conversion", cfg.Services.Conv,
+	)
 
-	currency, err := clients.NewCurrencyClient(cfg.Services.Currency, cfg.Timeouts.Currency)
+	curr, err := clients.NewCurrClient(cfg.Services.Curr, cfg.Timeouts.Curr)
 	if err != nil {
-		log.Error("currency client failed", "error", err)
+		log.Error("currency client",
+			"error", err,
+		)
 		os.Exit(1)
 	}
-	defer currency.Close()
+	defer curr.Close()
 
-	conversion, err := clients.NewConversionClient(cfg.Services.Conversion, cfg.Timeouts.Conversion)
+	conv, err := clients.NewConvClient(cfg.Services.Conv, cfg.Timeouts.Conv)
 	if err != nil {
-		log.Error("conversion client failed", "error", err)
+		log.Error("conversion client",
+			"error", err,
+		)
 		os.Exit(1)
 	}
-	defer conversion.Close()
+	defer conv.Close()
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,
@@ -49,27 +56,31 @@ func main() {
 		WriteTimeout: cfg.Timeouts.Write,
 
 		Handler: routers.NewAppRouter(&routers.Handlers{
-			Currency:   handlers.NewCurrencyHandler(currency, &cfg, log),
-			Conversion: handlers.NewConversionHandler(conversion, &cfg, log),
+			Curr: handlers.NewCurrHandler(curr, &cfg, log),
+			Conv: handlers.NewConvHandler(conv, &cfg, log),
 		}, &cfg, log),
 	}
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Error("http server failed", "error", err)
+			log.Error("server failed",
+				"error", err,
+			)
 			os.Exit(1)
 		}
 	}()
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
+	q := make(chan os.Signal, 1)
+	signal.Notify(q, syscall.SIGINT, syscall.SIGTERM)
+	<-q
 
-	ctx, cancel := context.WithTimeout(context.Background(), cfg.Timeouts.Shutdown)
-	defer cancel()
+	ctx, can := context.WithTimeout(context.Background(), cfg.Timeouts.Shutdown)
+	defer can()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Error("shutdown failed", "error", err)
+		log.Error("shutdown failed",
+			"error", err,
+		)
 		os.Exit(1)
 	}
 }

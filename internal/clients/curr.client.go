@@ -1,9 +1,10 @@
 package clients
 
 import (
+	"microservices-api/pkg/api/currency"
+
 	"context"
 	"fmt"
-	"microservices-api/pkg/api/currency"
 	"time"
 
 	"google.golang.org/grpc"
@@ -11,7 +12,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 )
 
-func NewCurrencyClient(addr string, tout time.Duration) (*CurrencyClient, error) {
+func NewCurrClient(addr string, tout time.Duration) (*CurrClient, error) {
 	conn, err := grpc.NewClient(addr,
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(4*1024*1024), grpc.MaxCallSendMsgSize(4*1024*1024)),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: 10 * time.Second, Timeout: 1 * time.Second}),
@@ -31,38 +32,38 @@ func NewCurrencyClient(addr string, tout time.Duration) (*CurrencyClient, error)
 		}`))
 
 	if err != nil {
-		return nil, fmt.Errorf("currency client : %w", err)
+		return nil, fmt.Errorf("failed to init : %w", err)
 	}
 
-	return &CurrencyClient{
+	return &CurrClient{
 		grpc: currency.NewCurrencyClient(conn),
 		conn: conn,
 		tout: tout,
 	}, nil
 }
 
-func (cl *CurrencyClient) Close() error {
+func (cl *CurrClient) Close() error {
 	if cl.conn != nil {
 		return cl.conn.Close()
 	}
 	return nil
 }
 
-func (cl *CurrencyClient) GetRate(ctx context.Context, fromCurrency string, toCurrency string) (*currency.RateResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, cl.tout)
-	defer cancel()
+func (cl *CurrClient) Rate(ctx context.Context, fromCurrency string, toCurrency string) (*currency.RateResponse, error) {
+	ctx, can := context.WithTimeout(ctx, cl.tout)
+	defer can()
 
-	return cl.grpc.GetRate(ctx, &currency.RateRequest{
+	return cl.grpc.Rate(ctx, &currency.RateRequest{
 		FromCurrency: fromCurrency,
 		ToCurrency:   toCurrency,
 	})
 }
 
-func (cl *CurrencyClient) GetAllRates(ctx context.Context, baseCurrency string) (*currency.RatesResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, cl.tout)
-	defer cancel()
+func (cl *CurrClient) Rates(ctx context.Context, baseCurrency string) (*currency.RatesResponse, error) {
+	ctx, can := context.WithTimeout(ctx, cl.tout)
+	defer can()
 
-	return cl.grpc.GetAllRates(ctx, &currency.RatesRequest{
+	return cl.grpc.Rates(ctx, &currency.RatesRequest{
 		BaseCurrency: baseCurrency,
 	})
 }
