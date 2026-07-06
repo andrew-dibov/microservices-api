@@ -13,9 +13,14 @@ func NewAppConfig() AppConfig {
 		Prod: tools.GetBoolEnv("PROD", false),
 		Keys: tools.GetKeysEnv("KEYS", map[string]bool{}),
 		Open: tools.GetKeysEnv("OPEN", map[string]bool{
-			"/live":  true,
-			"/ready": true,
+			"/livez":   true,
+			"/readyz":  true,
+			"/healthz": true,
+			"/metrics": true,
 		}),
+
+		Cert: tools.GetStrEnv("TLS_CERT", ""),
+		Key:  tools.GetStrEnv("TLS_KEY", ""),
 
 		Services: Services{
 			Hist: tools.GetStrEnv("HIST_ADDR", "localhost:50051"),

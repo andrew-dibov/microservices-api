@@ -3,7 +3,7 @@ generate:
 		protoc --go_out=. --go-grpc_out=. proto/conversion/conversion.proto
 
 build:
-		go build -o bin/microservices-api cmd/microservices-api/main.go
+		go build -o bin/app cmd/microservices-api/main.go
 
 run:
 		go run cmd/microservices-api/main.go

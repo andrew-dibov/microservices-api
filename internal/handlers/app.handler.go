@@ -17,7 +17,7 @@ func NewAppHandler(curr *clients.CurrClient, conv *clients.ConvClient, log *slog
 	}
 }
 
-func (h *AppHandler) Live(w http.ResponseWriter, r *http.Request) {
+func (h *AppHandler) Livez(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
@@ -28,7 +28,7 @@ func (h *AppHandler) Live(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *AppHandler) Ready(w http.ResponseWriter, r *http.Request) {
+func (h *AppHandler) Readyz(w http.ResponseWriter, r *http.Request) {
 	ctx, can := context.WithTimeout(r.Context(), 2*time.Second)
 	defer can()
 
@@ -63,6 +63,17 @@ func (h *AppHandler) Ready(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
+		h.log.Error("json response failed",
+			"error", err,
+		)
+	}
+}
+
+func (h *AppHandler) Healthz(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{"status": "ok"}); err != nil {
 		h.log.Error("json response failed",
 			"error", err,
 		)

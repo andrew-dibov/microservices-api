@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"microservices-api/internal/middlewares"
 	"microservices-api/pkg/api/conversion"
 
 	"context"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/metadata"
 )
 
 func NewConvClient(addr string, tout time.Duration) (*ConvClient, error) {
@@ -59,6 +61,10 @@ func (cl *ConvClient) Close() error {
 }
 
 func (cl *ConvClient) Convert(ctx context.Context, fromCurrency string, toCurrency string, amount float64) (*conversion.ConvertResponse, error) {
+	if reqID := middlewares.GetReqID(ctx); reqID != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
+	}
+
 	ctx, can := context.WithTimeout(ctx, cl.tout)
 	defer can()
 

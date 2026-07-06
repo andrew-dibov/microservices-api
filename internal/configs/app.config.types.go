@@ -9,6 +9,9 @@ type AppConfig struct {
 	Keys map[string]bool
 	Open map[string]bool
 
+	Cert string
+	Key  string
+
 	Services Services
 	Timeouts Timeouts
 	Limits   Limits

@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"microservices-api/internal/middlewares"
 	"microservices-api/pkg/api/currency"
 
 	"context"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/metadata"
 )
 
 func NewCurrClient(addr string, tout time.Duration) (*CurrClient, error) {
@@ -59,6 +61,10 @@ func (cl *CurrClient) Close() error {
 }
 
 func (cl *CurrClient) Rate(ctx context.Context, fromCurrency string, toCurrency string) (*currency.RateResponse, error) {
+	if reqID := middlewares.GetReqID(ctx); reqID != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
+	}
+
 	ctx, can := context.WithTimeout(ctx, cl.tout)
 	defer can()
 
@@ -69,6 +75,10 @@ func (cl *CurrClient) Rate(ctx context.Context, fromCurrency string, toCurrency 
 }
 
 func (cl *CurrClient) Rates(ctx context.Context, baseCurrency string) (*currency.RatesResponse, error) {
+	if reqID := middlewares.GetReqID(ctx); reqID != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
+	}
+
 	ctx, can := context.WithTimeout(ctx, cl.tout)
 	defer can()
 

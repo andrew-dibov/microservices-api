@@ -63,11 +63,21 @@ func main() {
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Error("server failed",
-				"error", err,
-			)
-			os.Exit(1)
+
+		if cfg.Cert != "" && cfg.Key != "" {
+			if err := srv.ListenAndServeTLS(cfg.Cert, cfg.Key); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				log.Error("server failed",
+					"error", err,
+				)
+				os.Exit(1)
+			}
+		} else {
+			if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				log.Error("server failed",
+					"error", err,
+				)
+				os.Exit(1)
+			}
 		}
 	}()
 
