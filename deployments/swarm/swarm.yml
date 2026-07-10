@@ -1,22 +1,21 @@
 services:
   microservices-api:
     image: microservices-api:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        CMD_NAME: ${CMD_NAME:-microservices-api}
-        GO_VERSION: ${GO_VERSION:-1.25.0}
-
-    container_name: microservices-api
-    labels: 
-      - "app.name=microservices-api"
-
-    restart: unless-stopped
-    mem_reservation: 256m
-    mem_limit: 512m
-    cpus: '0.5'
-
+    deploy:
+      replicas: 5
+      resources:
+        reservations:
+          cpus: '0.25'
+          memory: 256m
+        limits:
+          cpus: '0.5'
+          memory: 512m
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 120s
+        max_attempts: 5
+    
     ports:
       - "${PORT:-8080}:8080"
 
@@ -27,7 +26,7 @@ services:
         max-file: "5"
 
     volumes:
-      - ./certs:/certs:ro
+      - ../../certs:/certs:ro
 
     environment:
       - PORT=8080
