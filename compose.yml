@@ -36,8 +36,8 @@ services:
     environment:
       - PORT=8080
       - PROD=true
-      - KEYS=test-1111,test-2222,test-3333
-      - OPEN=/livez,/readyz,/healthz
+      - KEYS=test-1111,test-2222
+      - OPEN=/livez,/readyz,/healthz,/metrics
       # ---
       - TLS_CERT=/certs/cert.pem
       - TLS_KEY=/certs/key.pem

@@ -1,6 +1,8 @@
 package routers
 
-import "microservices-api/internal/handlers"
+import (
+	"microservices-api/internal/handlers"
+)
 
 type Handlers struct {
 	App  *handlers.AppHandler

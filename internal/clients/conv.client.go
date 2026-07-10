@@ -30,6 +30,7 @@ func NewConvClient(addr string, tout time.Duration) (*ConvClient, error) {
 				"backoffMultiplier": 2,
 				"initialBackoff": "0.1s",
 				"retryableStatusCodes": ["UNAVAILABLE"]
+				
 				}
 			}]
 		}`))

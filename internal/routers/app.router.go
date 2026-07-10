@@ -14,6 +14,7 @@ func NewAppRouter(hs *Handlers, cfg *configs.AppConfig, log *slog.Logger) http.H
 	mux.HandleFunc("GET /livez", hs.App.Livez)
 	mux.HandleFunc("GET /readyz", hs.App.Readyz)
 	mux.HandleFunc("GET /healthz", hs.App.Healthz)
+	mux.HandleFunc("GET /metrics", hs.App.Metrics)
 
 	mux.HandleFunc("GET /api/v1/rate", hs.Curr.Rate)
 	mux.HandleFunc("GET /api/v1/rates", hs.Curr.Rates)

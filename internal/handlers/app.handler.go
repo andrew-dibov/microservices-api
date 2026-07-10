@@ -5,14 +5,16 @@ import (
 	"encoding/json"
 	"log/slog"
 	"microservices-api/internal/clients"
+	"microservices-api/internal/registries"
 	"net/http"
 	"time"
 )
 
-func NewAppHandler(curr *clients.CurrClient, conv *clients.ConvClient, log *slog.Logger) *AppHandler {
+func NewAppHandler(curr *clients.CurrClient, conv *clients.ConvClient, preg *registries.PromRegistry, log *slog.Logger) *AppHandler {
 	return &AppHandler{
 		curr: curr,
 		conv: conv,
+		preg: preg,
 		log:  log,
 	}
 }
@@ -78,4 +80,8 @@ func (h *AppHandler) Healthz(w http.ResponseWriter, r *http.Request) {
 			"error", err,
 		)
 	}
+}
+
+func (h *AppHandler) Metrics(w http.ResponseWriter, r *http.Request) {
+	h.preg.Metrics().ServeHTTP(w, r)
 }

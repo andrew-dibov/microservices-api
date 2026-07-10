@@ -4,6 +4,7 @@ import (
 	"microservices-api/internal/clients"
 	"microservices-api/internal/configs"
 	"microservices-api/internal/handlers"
+	"microservices-api/internal/registries"
 	"microservices-api/internal/routers"
 
 	"context"
@@ -49,6 +50,8 @@ func main() {
 	}
 	defer conv.Close()
 
+	preg := registries.NewPromRegistry()
+
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,
 		ReadTimeout:  cfg.Timeouts.Read,
@@ -56,7 +59,7 @@ func main() {
 		WriteTimeout: cfg.Timeouts.Write,
 
 		Handler: routers.NewAppRouter(&routers.Handlers{
-			App:  handlers.NewAppHandler(curr, conv, log),
+			App:  handlers.NewAppHandler(curr, conv, preg, log),
 			Curr: handlers.NewCurrHandler(curr, &cfg, log),
 			Conv: handlers.NewConvHandler(conv, &cfg, log),
 		}, &cfg, log),
