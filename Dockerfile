@@ -9,8 +9,6 @@ WORKDIR /build
 COPY go.mod go.sum ./
 RUN go mod download
 
-RUN echo "Building service: ${CMD_NAME}"
-
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build \
   -ldflags="-s -w" \
