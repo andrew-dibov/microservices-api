@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
@@ -47,11 +46,15 @@ func NewConvClient(addr string, tout time.Duration) (*ConvClient, error) {
 }
 
 func (cl *ConvClient) Health(ctx context.Context) error {
-	state := cl.conn.GetState()
-	if state == connectivity.TransientFailure || state == connectivity.Shutdown {
-		return fmt.Errorf("connection state : %s", state)
-	}
-	return nil
+	ctx, can := context.WithTimeout(ctx, 2*time.Second)
+	defer can()
+
+	_, err := cl.grpc.Convert(ctx, &conversion.ConvertRequest{
+		FromCurrency: "USD",
+		ToCurrency:   "EUR",
+		Amount:       1,
+	})
+	return err
 }
 
 func (cl *ConvClient) Close() error {
