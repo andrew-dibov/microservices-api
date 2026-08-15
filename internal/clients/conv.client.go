@@ -45,11 +45,11 @@ func NewConvClient(addr string, tout time.Duration) (*ConvClient, error) {
 	}, nil
 }
 
-func (cl *ConvClient) Health(ctx context.Context) error {
+func (с *ConvClient) Health(ctx context.Context) error {
 	ctx, can := context.WithTimeout(ctx, 2*time.Second)
 	defer can()
 
-	_, err := cl.grpc.Convert(ctx, &conversion.ConvertRequest{
+	_, err := с.grpc.Convert(ctx, &conversion.ConvertRequest{
 		FromCurrency: "USD",
 		ToCurrency:   "EUR",
 		Amount:       1,
@@ -57,22 +57,22 @@ func (cl *ConvClient) Health(ctx context.Context) error {
 	return err
 }
 
-func (cl *ConvClient) Close() error {
-	if cl.conn != nil {
-		return cl.conn.Close()
+func (с *ConvClient) Close() error {
+	if с.conn != nil {
+		return с.conn.Close()
 	}
 	return nil
 }
 
-func (cl *ConvClient) Convert(ctx context.Context, fromCurrency string, toCurrency string, amount float64) (*conversion.ConvertResponse, error) {
+func (с *ConvClient) Convert(ctx context.Context, fromCurrency string, toCurrency string, amount float64) (*conversion.ConvertResponse, error) {
 	if reqID := middlewares.GetReqID(ctx); reqID != "" {
 		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
 	}
 
-	ctx, can := context.WithTimeout(ctx, cl.tout)
+	ctx, can := context.WithTimeout(ctx, с.tout)
 	defer can()
 
-	return cl.grpc.Convert(ctx, &conversion.ConvertRequest{
+	return с.grpc.Convert(ctx, &conversion.ConvertRequest{
 		FromCurrency: fromCurrency,
 		ToCurrency:   toCurrency,
 		Amount:       amount,

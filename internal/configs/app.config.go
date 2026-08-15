@@ -2,15 +2,14 @@ package configs
 
 import (
 	"microservices-api/internal/tools"
-
 	"time"
 )
 
 func NewAppConfig() AppConfig {
 	return AppConfig{
 		Port: tools.GetStrEnv("PORT", "8080"),
-
 		Prod: tools.GetBoolEnv("PROD", false),
+
 		Keys: tools.GetKeysEnv("KEYS", map[string]bool{}),
 		Open: tools.GetKeysEnv("OPEN", map[string]bool{
 			"/livez":   true,

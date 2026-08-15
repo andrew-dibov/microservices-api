@@ -4,8 +4,8 @@ import "time"
 
 type AppConfig struct {
 	Port string
-
 	Prod bool
+
 	Keys map[string]bool
 	Open map[string]bool
 
@@ -13,6 +13,7 @@ type AppConfig struct {
 	Key  string
 
 	Services Services
+
 	Timeouts Timeouts
 	Limits   Limits
 }

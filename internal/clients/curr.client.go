@@ -44,47 +44,47 @@ func NewCurrClient(addr string, tout time.Duration) (*CurrClient, error) {
 	}, nil
 }
 
-func (cl *CurrClient) Health(ctx context.Context) error {
+func (с *CurrClient) Health(ctx context.Context) error {
 	ctx, can := context.WithTimeout(ctx, 2*time.Second)
 	defer can()
 
-	_, err := cl.grpc.Rate(ctx, &currency.RateRequest{
+	_, err := с.grpc.Rate(ctx, &currency.RateRequest{
 		FromCurrency: "USD",
 		ToCurrency:   "EUR",
 	})
 	return err
 }
 
-func (cl *CurrClient) Close() error {
-	if cl.conn != nil {
-		return cl.conn.Close()
+func (с *CurrClient) Close() error {
+	if с.conn != nil {
+		return с.conn.Close()
 	}
 	return nil
 }
 
-func (cl *CurrClient) Rate(ctx context.Context, fromCurrency string, toCurrency string) (*currency.RateResponse, error) {
+func (с *CurrClient) Rate(ctx context.Context, fromCurrency string, toCurrency string) (*currency.RateResponse, error) {
 	if reqID := middlewares.GetReqID(ctx); reqID != "" {
 		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
 	}
 
-	ctx, can := context.WithTimeout(ctx, cl.tout)
+	ctx, can := context.WithTimeout(ctx, с.tout)
 	defer can()
 
-	return cl.grpc.Rate(ctx, &currency.RateRequest{
+	return с.grpc.Rate(ctx, &currency.RateRequest{
 		FromCurrency: fromCurrency,
 		ToCurrency:   toCurrency,
 	})
 }
 
-func (cl *CurrClient) Rates(ctx context.Context, baseCurrency string) (*currency.RatesResponse, error) {
+func (с *CurrClient) Rates(ctx context.Context, baseCurrency string) (*currency.RatesResponse, error) {
 	if reqID := middlewares.GetReqID(ctx); reqID != "" {
 		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
 	}
 
-	ctx, can := context.WithTimeout(ctx, cl.tout)
+	ctx, can := context.WithTimeout(ctx, с.tout)
 	defer can()
 
-	return cl.grpc.Rates(ctx, &currency.RatesRequest{
+	return с.grpc.Rates(ctx, &currency.RatesRequest{
 		BaseCurrency: baseCurrency,
 	})
 }
