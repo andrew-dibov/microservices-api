@@ -9,26 +9,26 @@ import (
 )
 
 func NewPromRegistry() *PromRegistry {
-	preg := prometheus.NewRegistry()
+	p := prometheus.NewRegistry()
 
-	preg.MustRegister(
+	p.MustRegister(
 		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 	)
 
-	return &PromRegistry{preg: preg}
+	return &PromRegistry{p: p}
 }
 
 func (r *PromRegistry) Metrics() http.Handler {
-	return promhttp.HandlerFor(r.preg, promhttp.HandlerOpts{
-		Registry: r.preg,
+	return promhttp.HandlerFor(r.p, promhttp.HandlerOpts{
+		Registry: r.p,
 	})
 }
 
 func (r *PromRegistry) Add(collectors ...prometheus.Collector) {
-	r.preg.MustRegister(collectors...)
+	r.p.MustRegister(collectors...)
 }
 
 func (r *PromRegistry) Reg() *prometheus.Registry {
-	return r.preg
+	return r.p
 }

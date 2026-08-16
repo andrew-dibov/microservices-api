@@ -7,27 +7,29 @@ import (
 
 func NewAppConfig() AppConfig {
 	return AppConfig{
-		Port: tools.GetStrEnv("PORT", "8080"),
-		Prod: tools.GetBoolEnv("PROD", false),
+		App: App{
+			Port: tools.GetStrEnv("PORT", "8080"),
+			Prod: tools.GetBoolEnv("PROD", false),
 
-		Keys: tools.GetKeysEnv("KEYS", map[string]bool{}),
-		Open: tools.GetKeysEnv("OPEN", map[string]bool{
-			"/livez":   true,
-			"/readyz":  true,
-			"/healthz": true,
-			"/metrics": true,
-		}),
+			Cert: tools.GetStrEnv("TLS_CERT", ""),
+			Key:  tools.GetStrEnv("TLS_KEY", ""),
 
-		Cert: tools.GetStrEnv("TLS_CERT", ""),
-		Key:  tools.GetStrEnv("TLS_KEY", ""),
+			Keys: tools.GetKeysEnv("KEYS", map[string]bool{}),
+			Open: tools.GetKeysEnv("OPEN", map[string]bool{
+				"/livez":   true,
+				"/readyz":  true,
+				"/healthz": true,
+				"/metrics": true,
+			}),
+		},
 
-		Services: Services{
+		Addr: Addr{
 			Hist: tools.GetStrEnv("HIST_ADDR", "localhost:50051"),
 			Curr: tools.GetStrEnv("CURR_ADDR", "localhost:50052"),
 			Conv: tools.GetStrEnv("CONV_ADDR", "localhost:50053"),
 		},
 
-		Timeouts: Timeouts{
+		Tout: Tout{
 			Hist: tools.GetDurEnv("HIST_TOUT", 5*time.Second),
 			Curr: tools.GetDurEnv("CURR_TOUT", 5*time.Second),
 			Conv: tools.GetDurEnv("CONV_TOUT", 5*time.Second),
@@ -38,14 +40,15 @@ func NewAppConfig() AppConfig {
 			Shutdown: tools.GetDurEnv("SHUTDOWN_TOUT", 25*time.Second),
 		},
 
-		Limits: Limits{
-			RateLimit:    tools.GetIntEnv("RATE_LIMIT", 5),
-			RatesLimit:   tools.GetIntEnv("RATES_LIMIT", 5),
-			ConvertLimit: tools.GetIntEnv("CONVERT_LIMIT", 5),
+		Limt: Limt{
+			RateLim: tools.GetIntEnv("RATE_LIM", 5),
+			RateBur: tools.GetIntEnv("RATE_BUR", 10),
 
-			RateBurst:    tools.GetIntEnv("RATE_BURST", 10),
-			RatesBurst:   tools.GetIntEnv("RATES_BURST", 10),
-			ConvertBurst: tools.GetIntEnv("CONVERT_BURST", 10),
+			RatesLim: tools.GetIntEnv("RATES_LIM", 5),
+			RatesBur: tools.GetIntEnv("RATES_BUR", 10),
+
+			ConvertLim: tools.GetIntEnv("CONVERT_LIM", 5),
+			ConvertBur: tools.GetIntEnv("CONVERT_BUR", 10),
 		},
 	}
 }

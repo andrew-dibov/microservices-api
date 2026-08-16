@@ -3,28 +3,30 @@ package configs
 import "time"
 
 type AppConfig struct {
+	App  App
+	Addr Addr
+	Tout Tout
+	Limt Limt
+}
+
+type App struct {
 	Port string
 	Prod bool
-
-	Keys map[string]bool
-	Open map[string]bool
 
 	Cert string
 	Key  string
 
-	Services Services
-
-	Timeouts Timeouts
-	Limits   Limits
+	Keys map[string]bool
+	Open map[string]bool
 }
 
-type Services struct {
+type Addr struct {
 	Hist string
 	Curr string
 	Conv string
 }
 
-type Timeouts struct {
+type Tout struct {
 	Hist time.Duration
 	Curr time.Duration
 	Conv time.Duration
@@ -35,12 +37,12 @@ type Timeouts struct {
 	Shutdown time.Duration
 }
 
-type Limits struct {
-	RateLimit    int
-	RatesLimit   int
-	ConvertLimit int
+type Limt struct {
+	RateLim    int
+	RatesLim   int
+	ConvertLim int
 
-	RateBurst    int
-	RatesBurst   int
-	ConvertBurst int
+	RateBur    int
+	RatesBur   int
+	ConvertBur int
 }

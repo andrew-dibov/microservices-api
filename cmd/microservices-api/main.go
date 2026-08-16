@@ -17,68 +17,59 @@ import (
 )
 
 func main() {
-	cfg := configs.NewAppConfig()
-
-	log := slog.New(map[bool]slog.Handler{
+	c := configs.NewAppConfig()
+	l := slog.New(map[bool]slog.Handler{
 		true:  slog.NewJSONHandler(os.Stdout, nil),
 		false: slog.NewTextHandler(os.Stdout, nil),
-	}[cfg.Prod])
+	}[c.App.Prod])
 
-	log.Info("app config",
-		"port", cfg.Port,
-		"prod", cfg.Prod,
-		"history", cfg.Services.Hist,
-		"currency", cfg.Services.Curr,
-		"conversion", cfg.Services.Conv,
+	l.Info("app config",
+		"port", c.App.Port,
+		"prod", c.App.Prod,
+		"history", c.Addr.Hist,
+		"currency", c.Addr.Curr,
+		"conversion", c.Addr.Conv,
 	)
 
-	curr, err := clients.NewCurrClient(cfg.Services.Curr, cfg.Timeouts.Curr)
+	curr, err := clients.NewCurrClient(c.Addr.Curr, c.Tout.Curr)
 	if err != nil {
-		log.Error("currency client",
-			"error", err,
-		)
+		l.Error("currency client", "error", err)
 		os.Exit(1)
 	}
 	defer curr.Close()
 
-	conv, err := clients.NewConvClient(cfg.Services.Conv, cfg.Timeouts.Conv)
+	conv, err := clients.NewConvClient(c.Addr.Conv, c.Tout.Conv)
 	if err != nil {
-		log.Error("conversion client",
-			"error", err,
-		)
+		l.Error("conversion client", "error", err)
 		os.Exit(1)
 	}
 	defer conv.Close()
 
-	preg := registries.NewPromRegistry()
+	p := registries.NewPromRegistry()
 
-	srv := &http.Server{
-		Addr:         ":" + cfg.Port,
-		ReadTimeout:  cfg.Timeouts.Read,
-		IdleTimeout:  cfg.Timeouts.Idle,
-		WriteTimeout: cfg.Timeouts.Write,
+	s := &http.Server{
+		Addr:         ":" + c.App.Port,
+		ReadTimeout:  c.Tout.Read,
+		IdleTimeout:  c.Tout.Idle,
+		WriteTimeout: c.Tout.Write,
 
 		Handler: routers.NewAppRouter(&routers.Handlers{
-			App:  handlers.NewAppHandler(curr, conv, preg, log),
-			Curr: handlers.NewCurrHandler(curr, &cfg, log),
-			Conv: handlers.NewConvHandler(conv, &cfg, log),
-		}, &cfg, log),
+			App:  handlers.NewAppHandler(curr, conv, p, l),
+			Curr: handlers.NewCurrHandler(curr, &c, l),
+			Conv: handlers.NewConvHandler(conv, &c, l),
+		}, &c, l),
 	}
 
 	go func() {
 
-		if cfg.Cert != "" && cfg.Key != "" {
-			if err := srv.ListenAndServeTLS(cfg.Cert, cfg.Key); err != nil && !errors.Is(err, http.ErrServerClosed) {
-				log.Error("server failed",
-					"error", err,
-				)
+		if c.App.Cert != "" && c.App.Key != "" {
+			if err := s.ListenAndServeTLS(c.App.Cert, c.App.Key); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				l.Error("server failed", "error", err)
 				os.Exit(1)
 			}
 		} else {
-			if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-				log.Error("server failed",
-					"error", err,
-				)
+			if err := s.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				l.Error("server failed", "error", err)
 				os.Exit(1)
 			}
 		}
@@ -88,13 +79,11 @@ func main() {
 	signal.Notify(q, syscall.SIGINT, syscall.SIGTERM)
 	<-q
 
-	ctx, can := context.WithTimeout(context.Background(), cfg.Timeouts.Shutdown)
+	ctx, can := context.WithTimeout(context.Background(), c.Tout.Shutdown)
 	defer can()
 
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Error("shutdown failed",
-			"error", err,
-		)
+	if err := s.Shutdown(ctx); err != nil {
+		l.Error("shutdown failed", "error", err)
 		os.Exit(1)
 	}
 }

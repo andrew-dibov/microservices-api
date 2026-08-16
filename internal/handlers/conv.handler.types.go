@@ -9,22 +9,22 @@ import (
 )
 
 type ConvHandler struct {
-	c   *clients.ConvClient
-	log *slog.Logger
-	lim ConvLimits
+	cl  *clients.ConvClient
+	l   *slog.Logger
+	lim ConvLim
 }
 
-type ConvLimits struct {
+type ConvLim struct {
 	convert *rate.Limiter
 }
 
-type ConvertRequest struct {
+type ConvertReq struct {
 	FromCurrency string  `json:"fromCurrency"`
 	ToCurrency   string  `json:"toCurrency"`
 	Amount       float64 `json:"amount"`
 }
 
-type ConvertResponse struct {
+type ConvertRes struct {
 	FromCurrency string  `json:"fromCurrency"`
 	ToCurrency   string  `json:"toCurrency"`
 	Amount       float64 `json:"amount"`

@@ -11,30 +11,30 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func NewConvHandler(c *clients.ConvClient, cfg *configs.AppConfig, log *slog.Logger) *ConvHandler {
+func NewConvHandler(cl *clients.ConvClient, c *configs.AppConfig, l *slog.Logger) *ConvHandler {
 	return &ConvHandler{
-		c:   c,
-		log: log,
-		lim: ConvLimits{
-			convert: rate.NewLimiter(rate.Limit(cfg.Limits.ConvertLimit), cfg.Limits.ConvertBurst),
+		cl: cl,
+		l:  l,
+		lim: ConvLim{
+			convert: rate.NewLimiter(rate.Limit(c.Limt.ConvertLim), c.Limt.ConvertBur),
 		},
 	}
 }
 
-func (h *ConvHandler) res(w http.ResponseWriter, stat int, data any) {
+func (ha *ConvHandler) res(w http.ResponseWriter, stat int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(stat)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		h.log.Error("json response failed",
+		ha.l.Error("json response failed",
 			"error", err,
 		)
 	}
 }
 
-func (h *ConvHandler) Convert(w http.ResponseWriter, r *http.Request) {
-	if !h.lim.convert.Allow() {
-		h.log.Warn("limit exceeded")
-		h.res(w, http.StatusTooManyRequests, map[string]string{
+func (ha *ConvHandler) Convert(w http.ResponseWriter, r *http.Request) {
+	if !ha.lim.convert.Allow() {
+		ha.l.Warn("limit exceeded")
+		ha.res(w, http.StatusTooManyRequests, map[string]string{
 			"message": "limit exceeded",
 		})
 		return
@@ -42,23 +42,23 @@ func (h *ConvHandler) Convert(w http.ResponseWriter, r *http.Request) {
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1024*1024)
 
-	var body ConvertRequest
+	var body ConvertReq
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		h.res(w, http.StatusBadRequest, map[string]string{
+		ha.res(w, http.StatusBadRequest, map[string]string{
 			"error": "invalid body",
 		})
 		return
 	}
 
 	if body.FromCurrency == "" || body.ToCurrency == "" {
-		h.res(w, http.StatusBadRequest, map[string]string{
+		ha.res(w, http.StatusBadRequest, map[string]string{
 			"error": "fromCurrency or toCurrency is empty",
 		})
 		return
 	}
 
 	if len(body.FromCurrency) != 3 || len(body.ToCurrency) != 3 {
-		h.res(w, http.StatusBadRequest, map[string]string{
+		ha.res(w, http.StatusBadRequest, map[string]string{
 			"error": "fromCurrency or toCurrency is not 3 chars",
 		})
 		return
@@ -66,7 +66,7 @@ func (h *ConvHandler) Convert(w http.ResponseWriter, r *http.Request) {
 
 	for _, ch := range body.FromCurrency {
 		if ch < 'A' || ch > 'Z' {
-			h.res(w, http.StatusBadRequest, map[string]string{
+			ha.res(w, http.StatusBadRequest, map[string]string{
 				"error": "fromCurrency has invalid chars",
 			})
 			return
@@ -75,7 +75,7 @@ func (h *ConvHandler) Convert(w http.ResponseWriter, r *http.Request) {
 
 	for _, ch := range body.ToCurrency {
 		if ch < 'A' || ch > 'Z' {
-			h.res(w, http.StatusBadRequest, map[string]string{
+			ha.res(w, http.StatusBadRequest, map[string]string{
 				"error": "toCurrency has invalid chars",
 			})
 			return
@@ -83,33 +83,33 @@ func (h *ConvHandler) Convert(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if body.Amount <= 0 {
-		h.res(w, http.StatusBadRequest, map[string]string{
+		ha.res(w, http.StatusBadRequest, map[string]string{
 			"error": "amount must be positive",
 		})
 		return
 	}
 
 	if body.Amount > 1e12 {
-		h.res(w, http.StatusBadRequest, map[string]string{
+		ha.res(w, http.StatusBadRequest, map[string]string{
 			"error": "amount is too large",
 		})
 		return
 	}
 
 	ctx := r.Context()
-	data, err := h.c.Convert(ctx, body.FromCurrency, body.ToCurrency, body.Amount)
+	data, err := ha.cl.Convert(ctx, body.FromCurrency, body.ToCurrency, body.Amount)
 
 	if err != nil {
-		h.log.Error("conversion operation failed",
+		ha.l.Error("conversion operation failed",
 			"error", err,
 		)
-		h.res(w, http.StatusInternalServerError, map[string]string{
+		ha.res(w, http.StatusInternalServerError, map[string]string{
 			"error": "conversion operation failed",
 		})
 		return
 	}
 
-	h.res(w, http.StatusOK, ConvertResponse{
+	ha.res(w, http.StatusOK, ConvertRes{
 		FromCurrency: data.FromCurrency,
 		ToCurrency:   data.ToCurrency,
 		Amount:       data.Amount,

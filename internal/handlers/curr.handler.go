@@ -11,31 +11,31 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func NewCurrHandler(c *clients.CurrClient, cfg *configs.AppConfig, log *slog.Logger) *CurrHandler {
+func NewCurrHandler(cl *clients.CurrClient, c *configs.AppConfig, l *slog.Logger) *CurrHandler {
 	return &CurrHandler{
-		c:   c,
-		log: log,
-		lim: CurrLimits{
-			rate:  rate.NewLimiter(rate.Limit(cfg.Limits.RateLimit), cfg.Limits.RateBurst),
-			rates: rate.NewLimiter(rate.Limit(cfg.Limits.RatesLimit), cfg.Limits.RatesBurst),
+		cl: cl,
+		l:  l,
+		lim: CurrLim{
+			rate:  rate.NewLimiter(rate.Limit(c.Limt.RateLim), c.Limt.RateBur),
+			rates: rate.NewLimiter(rate.Limit(c.Limt.RatesLim), c.Limt.RatesBur),
 		},
 	}
 }
 
-func (h *CurrHandler) res(w http.ResponseWriter, stat int, data any) {
+func (ha *CurrHandler) res(w http.ResponseWriter, stat int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(stat)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
-		h.log.Error("json response failed",
+		ha.l.Error("json response failed",
 			"error", err,
 		)
 	}
 }
 
-func (h *CurrHandler) Rate(w http.ResponseWriter, r *http.Request) {
-	if !h.lim.rate.Allow() {
-		h.log.Warn("limit exceeded")
-		h.res(w, http.StatusTooManyRequests, map[string]string{
+func (ha *CurrHandler) Rate(w http.ResponseWriter, r *http.Request) {
+	if !ha.lim.rate.Allow() {
+		ha.l.Warn("limit exceeded")
+		ha.res(w, http.StatusTooManyRequests, map[string]string{
 			"message": "limit exceeded",
 		})
 		return
@@ -45,14 +45,14 @@ func (h *CurrHandler) Rate(w http.ResponseWriter, r *http.Request) {
 	toCurrency := r.URL.Query().Get("toCurrency")
 
 	if fromCurrency == "" || toCurrency == "" {
-		h.res(w, http.StatusBadRequest, map[string]string{
+		ha.res(w, http.StatusBadRequest, map[string]string{
 			"error": "fromCurrency or toCurrency is empty",
 		})
 		return
 	}
 
 	if len(fromCurrency) != 3 || len(toCurrency) != 3 {
-		h.res(w, http.StatusBadRequest, map[string]string{
+		ha.res(w, http.StatusBadRequest, map[string]string{
 			"error": "fromCurrency or toCurrency is not 3 chars",
 		})
 		return
@@ -60,7 +60,7 @@ func (h *CurrHandler) Rate(w http.ResponseWriter, r *http.Request) {
 
 	for _, ch := range fromCurrency {
 		if ch < 'A' || ch > 'Z' {
-			h.res(w, http.StatusBadRequest, map[string]string{
+			ha.res(w, http.StatusBadRequest, map[string]string{
 				"error": "fromCurrency has invalid chars",
 			})
 			return
@@ -69,7 +69,7 @@ func (h *CurrHandler) Rate(w http.ResponseWriter, r *http.Request) {
 
 	for _, ch := range toCurrency {
 		if ch < 'A' || ch > 'Z' {
-			h.res(w, http.StatusBadRequest, map[string]string{
+			ha.res(w, http.StatusBadRequest, map[string]string{
 				"error": "toCurrency has invalid chars",
 			})
 			return
@@ -77,29 +77,29 @@ func (h *CurrHandler) Rate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	data, err := h.c.Rate(ctx, fromCurrency, toCurrency)
+	data, err := ha.cl.Rate(ctx, fromCurrency, toCurrency)
 
 	if err != nil {
-		h.log.Error("rate operation failed",
+		ha.l.Error("rate operation failed",
 			"error", err,
 		)
-		h.res(w, http.StatusInternalServerError, map[string]string{
+		ha.res(w, http.StatusInternalServerError, map[string]string{
 			"error": "rate operation failed",
 		})
 		return
 	}
 
-	h.res(w, http.StatusOK, RateResponse{
+	ha.res(w, http.StatusOK, RateRes{
 		FromCurrency: data.FromCurrency,
 		ToCurrency:   data.ToCurrency,
 		Rate:         data.Rate,
 	})
 }
 
-func (h *CurrHandler) Rates(w http.ResponseWriter, r *http.Request) {
-	if !h.lim.rates.Allow() {
-		h.log.Warn("limit exceeded")
-		h.res(w, http.StatusTooManyRequests, map[string]string{
+func (ha *CurrHandler) Rates(w http.ResponseWriter, r *http.Request) {
+	if !ha.lim.rates.Allow() {
+		ha.l.Warn("limit exceeded")
+		ha.res(w, http.StatusTooManyRequests, map[string]string{
 			"message": "limit exceeded",
 		})
 		return
@@ -112,7 +112,7 @@ func (h *CurrHandler) Rates(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(baseCurrency) != 3 {
-		h.res(w, http.StatusBadRequest, map[string]string{
+		ha.res(w, http.StatusBadRequest, map[string]string{
 			"error": "baseCurrency is not 3 chars",
 		})
 		return
@@ -120,7 +120,7 @@ func (h *CurrHandler) Rates(w http.ResponseWriter, r *http.Request) {
 
 	for _, ch := range baseCurrency {
 		if ch < 'A' || ch > 'Z' {
-			h.res(w, http.StatusBadRequest, map[string]string{
+			ha.res(w, http.StatusBadRequest, map[string]string{
 				"error": "baseCurrency has invalid chars",
 			})
 			return
@@ -128,19 +128,19 @@ func (h *CurrHandler) Rates(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	data, err := h.c.Rates(ctx, baseCurrency)
+	data, err := ha.cl.Rates(ctx, baseCurrency)
 
 	if err != nil {
-		h.log.Error("rates operation failed",
+		ha.l.Error("rates operation failed",
 			"error", err,
 		)
-		h.res(w, http.StatusInternalServerError, map[string]string{
+		ha.res(w, http.StatusInternalServerError, map[string]string{
 			"error": "rates operation failed",
 		})
 		return
 	}
 
-	h.res(w, http.StatusOK, RatesResponse{
+	ha.res(w, http.StatusOK, RatesRes{
 		BaseCurrency: data.BaseCurrency,
 		Rates:        data.Rates,
 	})

@@ -24,12 +24,12 @@ services:
       - WRITE_TOUT=20s
       - SHUTDOWN_TOUT=25s
       # ---
-      - RATE_LIMIT=5
-      - RATE_BURST=10
-      - RATES_LIMIT=5
-      - RATES_BURST=10
-      - CONVERT_LIMIT=5
-      - CONVERT_BURST=10
+      - RATE_LIM=5
+      - RATE_BUR=10
+      - RATES_LIM=5
+      - RATES_BUR=10
+      - CONVERT_LIM=5
+      - CONVERT_BUR=10
     healthcheck:
       test: ["CMD-SHELL", "wget --no-check-certificate --spider --quiet https://localhost:8080/healthz || exit 1"]
       retries: 3

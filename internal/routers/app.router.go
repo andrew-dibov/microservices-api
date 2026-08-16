@@ -8,23 +8,23 @@ import (
 	"net/http"
 )
 
-func NewAppRouter(hs *Handlers, cfg *configs.AppConfig, log *slog.Logger) http.Handler {
-	mux := http.NewServeMux()
+func NewAppRouter(hs *Handlers, c *configs.AppConfig, l *slog.Logger) http.Handler {
+	m := http.NewServeMux()
 
-	mux.HandleFunc("GET /livez", hs.App.Livez)
-	mux.HandleFunc("GET /readyz", hs.App.Readyz)
-	mux.HandleFunc("GET /healthz", hs.App.Healthz)
-	mux.HandleFunc("GET /metrics", hs.App.Metrics)
+	m.HandleFunc("GET /livez", hs.App.Livez)
+	m.HandleFunc("GET /readyz", hs.App.Readyz)
+	m.HandleFunc("GET /healthz", hs.App.Healthz)
+	m.HandleFunc("GET /metrics", hs.App.Metrics)
 
-	mux.HandleFunc("GET /api/v1/rate", hs.Curr.Rate)
-	mux.HandleFunc("GET /api/v1/rates", hs.Curr.Rates)
-	mux.HandleFunc("POST /api/v1/convert", hs.Conv.Convert)
+	m.HandleFunc("GET /api/v1/rate", hs.Curr.Rate)
+	m.HandleFunc("GET /api/v1/rates", hs.Curr.Rates)
+	m.HandleFunc("POST /api/v1/convert", hs.Conv.Convert)
 
-	rtr := middlewares.Auth(mux, log, cfg.Keys, cfg.Open)
+	r := middlewares.Auth(m, l, c.App.Keys, c.App.Open)
 
-	rtr = middlewares.Recover(rtr, log)
-	rtr = middlewares.Log(rtr, log)
-	rtr = middlewares.Trace(rtr)
+	r = middlewares.Recover(r, l)
+	r = middlewares.Log(r, l)
+	r = middlewares.Trace(r)
 
-	return rtr
+	return r
 }

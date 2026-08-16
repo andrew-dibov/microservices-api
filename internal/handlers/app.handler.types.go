@@ -9,6 +9,6 @@ import (
 type AppHandler struct {
 	curr *clients.CurrClient
 	conv *clients.ConvClient
-	log  *slog.Logger
 	preg *registries.PromRegistry
+	l    *slog.Logger
 }

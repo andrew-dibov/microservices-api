@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func Log(n http.Handler, log *slog.Logger) http.Handler {
+func Log(n http.Handler, l *slog.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		came := time.Now()
 
@@ -17,7 +17,7 @@ func Log(n http.Handler, log *slog.Logger) http.Handler {
 
 		processed := time.Since(came).Milliseconds()
 
-		log.Info("http request",
+		l.Info("http request",
 			"id", reqID,
 			"path", r.URL.Path,
 			"method", r.Method,
