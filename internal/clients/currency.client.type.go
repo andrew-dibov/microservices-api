@@ -1,15 +1,14 @@
 package clients
 
 import (
+	"microservices-api/internal/configs"
 	"microservices-api/pkg/api/currency"
-
-	"time"
 
 	"google.golang.org/grpc"
 )
 
-type CurrClient struct {
+type CurrencyClient struct {
 	grpc currency.CurrencyClient
 	conn *grpc.ClientConn
-	tout time.Duration
+	conf *configs.AppConfig
 }

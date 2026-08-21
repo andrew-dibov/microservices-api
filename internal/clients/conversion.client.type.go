@@ -1,15 +1,14 @@
 package clients
 
 import (
+	"microservices-api/internal/configs"
 	"microservices-api/pkg/api/conversion"
-
-	"time"
 
 	"google.golang.org/grpc"
 )
 
-type ConvClient struct {
+type ConversionClient struct {
 	grpc conversion.ConversionClient
 	conn *grpc.ClientConn
-	tout time.Duration
+	conf *configs.AppConfig
 }

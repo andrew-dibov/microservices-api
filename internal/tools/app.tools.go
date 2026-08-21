@@ -7,14 +7,14 @@ import (
 	"time"
 )
 
-func GetStrEnv(key string, def string) string {
+func GetStringEnv(key string, def string) string {
 	if val := os.Getenv(key); val != "" {
 		return val
 	}
 	return def
 }
 
-func GetIntEnv(key string, def int) int {
+func GetIntegerEnv(key string, def int) int {
 	if str := os.Getenv(key); str != "" {
 		if val, err := strconv.Atoi(str); err == nil {
 			return val
@@ -23,7 +23,7 @@ func GetIntEnv(key string, def int) int {
 	return def
 }
 
-func GetBoolEnv(key string, def bool) bool {
+func GetBooleanEnv(key string, def bool) bool {
 	if str := os.Getenv(key); str != "" {
 		if val, err := strconv.ParseBool(str); err == nil {
 			return val
@@ -32,7 +32,7 @@ func GetBoolEnv(key string, def bool) bool {
 	return def
 }
 
-func GetDurEnv(key string, def time.Duration) time.Duration {
+func GetDurationEnv(key string, def time.Duration) time.Duration {
 	if str := os.Getenv(key); str != "" {
 		if val, err := time.ParseDuration(str); err == nil {
 			return val
@@ -41,7 +41,7 @@ func GetDurEnv(key string, def time.Duration) time.Duration {
 	return def
 }
 
-func GetKeysEnv(key string, def map[string]bool) map[string]bool {
+func GetStringSetEnv(key string, def map[string]bool) map[string]bool {
 	str := os.Getenv(key)
 	keys := make(map[string]bool)
 
