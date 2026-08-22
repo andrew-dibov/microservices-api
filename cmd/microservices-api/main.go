@@ -4,6 +4,7 @@ import (
 	"microservices-api/internal/clients"
 	"microservices-api/internal/configs"
 	"microservices-api/internal/loggers"
+	"microservices-api/internal/registries"
 	"os"
 )
 
@@ -36,4 +37,19 @@ func main() {
 	defer currencyClient.Close()
 
 	/* --- --- --- */
+
+	prometheusRegistry := registries.NewPrometheusRegistry()
+
+	/* --- --- --- */
+
+	/* --- --- --- */
+
+	// server := &http.Server{
+	// 	Addr:         ":" + appConfig.App.Port,
+	// 	ReadTimeout:  appConfig.App.ReadTimeout,
+	// 	IdleTimeout:  appConfig.App.IdleTimeout,
+	// 	WriteTimeout: appConfig.App.WriteTimeout,
+
+	// 	// Handler:,
+	// }
 }

@@ -12,7 +12,7 @@ import (
 )
 
 func NewCurrencyClient(appConfig *configs.AppConfig) (*CurrencyClient, error) {
-	conn, err := grpc.NewClient(appConfig.CurrencyService.Address,
+	connection, err := grpc.NewClient(appConfig.CurrencyService.Address,
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(4*1024*1024), grpc.MaxCallSendMsgSize(4*1024*1024)),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: 10 * time.Second, Timeout: 1 * time.Second}),
 		grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 2 * time.Second}),
@@ -36,8 +36,8 @@ func NewCurrencyClient(appConfig *configs.AppConfig) (*CurrencyClient, error) {
 	}
 
 	return &CurrencyClient{
-		grpc: currency.NewCurrencyClient(conn),
-		conn: conn,
+		grpc: currency.NewCurrencyClient(connection),
+		conn: connection,
 		conf: appConfig,
 	}, nil
 }

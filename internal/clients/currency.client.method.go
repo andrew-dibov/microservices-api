@@ -5,18 +5,18 @@ import (
 	"microservices-api/pkg/api/currency"
 )
 
-func (cl *CurrencyClient) Close() error {
-	if cl.conn != nil {
-		return cl.conn.Close()
+func (client *CurrencyClient) Close() error {
+	if client.conn != nil {
+		return client.conn.Close()
 	}
 	return nil
 }
 
-func (cl *CurrencyClient) Health(ctx context.Context) error {
-	ctx, cancel := context.WithTimeout(ctx, cl.conf.CurrencyService.HealthTimeout)
+func (client *CurrencyClient) Health(ctx context.Context) error {
+	ctx, cancel := context.WithTimeout(ctx, client.conf.CurrencyService.HealthTimeout)
 	defer cancel()
 
-	_, err := cl.grpc.Rate(ctx, &currency.RateRequest{
+	_, err := client.grpc.Rate(ctx, &currency.RateRequest{
 		FromCurrency: "USD",
 		ToCurrency:   "EUR",
 	})

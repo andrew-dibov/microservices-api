@@ -12,7 +12,7 @@ import (
 )
 
 func NewConversionClient(appConfig *configs.AppConfig) (*ConversionClient, error) {
-	conn, err := grpc.NewClient(appConfig.ConversionService.Address,
+	connection, err := grpc.NewClient(appConfig.ConversionService.Address,
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(4*1024*1024), grpc.MaxCallSendMsgSize(4*1024*1024)),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: 10 * time.Second, Timeout: 1 * time.Second}),
 		grpc.WithConnectParams(grpc.ConnectParams{MinConnectTimeout: 2 * time.Second}),
@@ -36,8 +36,8 @@ func NewConversionClient(appConfig *configs.AppConfig) (*ConversionClient, error
 	}
 
 	return &ConversionClient{
-		grpc: conversion.NewConversionClient(conn),
-		conn: conn,
+		grpc: conversion.NewConversionClient(connection),
+		conn: connection,
 		conf: appConfig,
 	}, nil
 }

@@ -6,6 +6,10 @@ TLS_DIR := certs
 
 .DEFAULT_GOAL := help
 
+prepare:
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
 generate:
 	protoc --go_out=. --go-grpc_out=. proto/currency/currency.proto
 	protoc --go_out=. --go-grpc_out=. proto/conversion/conversion.proto
@@ -21,11 +25,3 @@ run:
 
 clean:
 	rm -rf $(BIN_DIR) $(TLS_DIR)
-
-help:
-	@echo "make generate : сгенерировать protobuf и сертификаты"
-	@echo "make build    : собрать бинарник"
-	@echo "make run      : запустить сервер"
-	@echo "make clean    : удалить bin и certs"
-
-.PHONY: generate build run clean help
