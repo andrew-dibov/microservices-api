@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"context"
-	"microservices-api/internal/tools"
+	"microservices-api/internal/modules"
 	"net/http"
 )
 
@@ -15,10 +15,10 @@ func (middleware *TraceMiddleware) Middleware(next http.Handler) http.Handler {
 		id := req.Header.Get("X-Request-ID")
 
 		if id == "" {
-			id = tools.GenID()
+			id = modules.GenID()
 		}
 
-		ctx := context.WithValue(req.Context(), tools.ID{}, id)
+		ctx := context.WithValue(req.Context(), modules.ID{}, id)
 		req = req.WithContext(ctx)
 
 		res.Header().Set("X-Request-ID", id)

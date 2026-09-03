@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"microservices-api/internal/loggers"
-	"microservices-api/internal/tools"
+	"microservices-api/internal/modules"
 	"net/http"
 	"time"
 )
@@ -16,7 +16,7 @@ func (middleware *LogMiddleware) Middleware(next http.Handler, appLogger *logger
 		reqNow := time.Now()
 		newRes := &responseWriter{ResponseWriter: res, status: http.StatusOK}
 
-		reqID := tools.GetID(req.Context())
+		reqID := modules.GetID(req.Context())
 		next.ServeHTTP(newRes, req)
 
 		reqProcessed := time.Since(reqNow).Milliseconds()

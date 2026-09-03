@@ -22,6 +22,7 @@ type App struct {
 	ReadTimeout     time.Duration
 	IdleTimeout     time.Duration
 	WriteTimeout    time.Duration
+	ReadyzTimeout   time.Duration
 	ShutdownTimeout time.Duration
 }
 

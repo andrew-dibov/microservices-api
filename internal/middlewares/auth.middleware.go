@@ -29,7 +29,7 @@ func (middleware *AuthMiddleware) Middleware(next http.Handler, appConfig *confi
 			res.Header().Set("Content-Type", "application/json")
 			res.WriteHeader(http.StatusUnauthorized)
 
-			if err := json.NewEncoder(res).Encode(map[string]string{"error": "Absent key"}); err != nil {
+			if err := json.NewEncoder(res).Encode(map[string]string{"error": "absent key"}); err != nil {
 				appLogger.Error("AuthMiddleware : json response failed", "error", err)
 			}
 			return
@@ -45,7 +45,7 @@ func (middleware *AuthMiddleware) Middleware(next http.Handler, appConfig *confi
 			res.Header().Set("Content-Type", "application/json")
 			res.WriteHeader(http.StatusUnauthorized)
 
-			if err := json.NewEncoder(res).Encode(map[string]string{"error": "Wrong key"}); err != nil {
+			if err := json.NewEncoder(res).Encode(map[string]string{"error": "wrong key"}); err != nil {
 				appLogger.Error("AuthMiddleware : json response failed", "error", err)
 			}
 			return

@@ -1,30 +1,31 @@
 package configs
 
 import (
-	"microservices-api/internal/tools"
+	"microservices-api/internal/modules"
 	"time"
 )
 
 func NewAppConfig() AppConfig {
 	return AppConfig{
 		App: App{
-			Name: tools.GetStringEnv("APP_NAME", "microservices-api"),
+			Name: modules.GetStringEnv("APP_NAME", "microservices-api"),
 
-			Prod: tools.GetBooleanEnv("APP_PROD", false),
-			Port: tools.GetStringEnv("APP_PORT", "8080"),
+			Prod: modules.GetBooleanEnv("APP_PROD", false),
+			Port: modules.GetStringEnv("APP_PORT", "8080"),
 
-			ReadTimeout:     tools.GetDurationEnv("APP_READ_TIMEOUT", 5*time.Second),
-			IdleTimeout:     tools.GetDurationEnv("APP_IDLE_TIMEOUT", 5*time.Second),
-			WriteTimeout:    tools.GetDurationEnv("APP_WRITE_TIMEOUT", 5*time.Second),
-			ShutdownTimeout: tools.GetDurationEnv("APP_SHUTDOWN_TIMEOUT", 5*time.Second),
+			ReadTimeout:     modules.GetDurationEnv("APP_READ_TIMEOUT", 5*time.Second),
+			IdleTimeout:     modules.GetDurationEnv("APP_IDLE_TIMEOUT", 5*time.Second),
+			WriteTimeout:    modules.GetDurationEnv("APP_WRITE_TIMEOUT", 5*time.Second),
+			ReadyzTimeout:   modules.GetDurationEnv("APP_READYZ_TIMEOUT", 2*time.Second),
+			ShutdownTimeout: modules.GetDurationEnv("APP_SHUTDOWN_TIMEOUT", 5*time.Second),
 		},
 
 		Security: Security{
-			Certificate: tools.GetStringEnv("SECURITY_CERTIFICATE", ""),
-			Key:         tools.GetStringEnv("SECURITY_KEY", ""),
+			Certificate: modules.GetStringEnv("SECURITY_CERTIFICATE", ""),
+			Key:         modules.GetStringEnv("SECURITY_KEY", ""),
 
-			ApiKeys: tools.GetStringSetEnv("SECURITY_API_KEYS", map[string]bool{}),
-			OpenEndpoints: tools.GetStringSetEnv("SECURITY_OPEN_ENDPOINTS", map[string]bool{
+			ApiKeys: modules.GetStringSetEnv("SECURITY_API_KEYS", map[string]bool{}),
+			OpenEndpoints: modules.GetStringSetEnv("SECURITY_OPEN_ENDPOINTS", map[string]bool{
 				"/livez":   true,
 				"/readyz":  true,
 				"/healthz": true,
@@ -33,39 +34,39 @@ func NewAppConfig() AppConfig {
 		},
 
 		HistoryService: HistoryService{
-			Address:       tools.GetStringEnv("HISTORY_ADDRESS", "localhost:50051"),
-			Timeout:       tools.GetDurationEnv("HISTORY_TIMEOUT", 5*time.Second),
-			HealthTimeout: tools.GetDurationEnv("HISTORY_HEALTH_TIMEOUT", 2*time.Second),
+			Address:       modules.GetStringEnv("HISTORY_ADDRESS", "localhost:50051"),
+			Timeout:       modules.GetDurationEnv("HISTORY_TIMEOUT", 5*time.Second),
+			HealthTimeout: modules.GetDurationEnv("HISTORY_HEALTH_TIMEOUT", 2*time.Second),
 
 			Limits: HistoryLimits{},
 		},
 
 		CurrencyService: CurrencyService{
-			Address:       tools.GetStringEnv("CURRENCY_ADDRESS", "localhost:50052"),
-			Timeout:       tools.GetDurationEnv("CURRENCY_TIMEOUT", 5*time.Second),
-			HealthTimeout: tools.GetDurationEnv("CURRENCY_HEALTH_TIMEOUT", 2*time.Second),
+			Address:       modules.GetStringEnv("CURRENCY_ADDRESS", "localhost:50052"),
+			Timeout:       modules.GetDurationEnv("CURRENCY_TIMEOUT", 5*time.Second),
+			HealthTimeout: modules.GetDurationEnv("CURRENCY_HEALTH_TIMEOUT", 2*time.Second),
 
 			Limits: CurrencyLimits{
 				Rate: Rate{
-					Limit: tools.GetIntegerEnv("CURRENCY_RATE_LIMIT", 5),
-					Burst: tools.GetIntegerEnv("CURRENCY_RATE_BURST", 10),
+					Limit: modules.GetIntegerEnv("CURRENCY_RATE_LIMIT", 5),
+					Burst: modules.GetIntegerEnv("CURRENCY_RATE_BURST", 10),
 				},
 				Rates: Rates{
-					Limit: tools.GetIntegerEnv("CURRENCY_RATES_LIMIT", 5),
-					Burst: tools.GetIntegerEnv("CURRENCY_RATES_BURST", 10),
+					Limit: modules.GetIntegerEnv("CURRENCY_RATES_LIMIT", 5),
+					Burst: modules.GetIntegerEnv("CURRENCY_RATES_BURST", 10),
 				},
 			},
 		},
 
 		ConversionService: ConversionService{
-			Address:       tools.GetStringEnv("CONVERSION_ADDRESS", "localhost:50053"),
-			Timeout:       tools.GetDurationEnv("CONVERSION_TIMEOUT", 5*time.Second),
-			HealthTimeout: tools.GetDurationEnv("CONVERSION_HEALTH_TIMEOUT", 2*time.Second),
+			Address:       modules.GetStringEnv("CONVERSION_ADDRESS", "localhost:50053"),
+			Timeout:       modules.GetDurationEnv("CONVERSION_TIMEOUT", 5*time.Second),
+			HealthTimeout: modules.GetDurationEnv("CONVERSION_HEALTH_TIMEOUT", 2*time.Second),
 
 			Limits: ConversionLimits{
 				Convert: Convert{
-					Limit: tools.GetIntegerEnv("CONVERSION_CONVERT_LIMIT", 5),
-					Burst: tools.GetIntegerEnv("CONVERSION_CONVERT_BURST", 10),
+					Limit: modules.GetIntegerEnv("CONVERSION_CONVERT_LIMIT", 5),
+					Burst: modules.GetIntegerEnv("CONVERSION_CONVERT_BURST", 10),
 				},
 			},
 		},

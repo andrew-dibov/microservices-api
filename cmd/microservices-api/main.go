@@ -1,11 +1,18 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"microservices-api/internal/clients"
 	"microservices-api/internal/configs"
+	"microservices-api/internal/handlers"
 	"microservices-api/internal/loggers"
 	"microservices-api/internal/registries"
+	"microservices-api/internal/routers"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -42,14 +49,47 @@ func main() {
 
 	/* --- --- --- */
 
+	appServer := &http.Server{
+		Addr: ":" + appConfig.App.Port,
+
+		ReadTimeout:  appConfig.App.ReadTimeout,
+		IdleTimeout:  appConfig.App.IdleTimeout,
+		WriteTimeout: appConfig.App.WriteTimeout,
+
+		Handler: routers.NewAppRouter(&routers.AppRouterHandlers{
+			App:               handlers.NewAppHandler(&appConfig, appLogger, currencyClient, conversionClient, prometheusRegistry),
+			CurrencyHandler:   handlers.NewCurrencyHandler(&appConfig, appLogger, currencyClient),
+			ConversionHandler: handlers.NewConversionHandler(&appConfig, appLogger, conversionClient),
+		}, &appConfig, appLogger),
+	}
+
 	/* --- --- --- */
 
-	// server := &http.Server{
-	// 	Addr:         ":" + appConfig.App.Port,
-	// 	ReadTimeout:  appConfig.App.ReadTimeout,
-	// 	IdleTimeout:  appConfig.App.IdleTimeout,
-	// 	WriteTimeout: appConfig.App.WriteTimeout,
+	go func() {
+		if appConfig.Security.Certificate != "" && appConfig.Security.Key != "" {
+			if err := appServer.ListenAndServeTLS(appConfig.Security.Certificate, appConfig.Security.Key); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				appLogger.Error("appServer returned error", "error", err)
+				os.Exit(1)
+			}
+		} else {
+			if err := appServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				appLogger.Error("appServer returned error", "error", err)
+				os.Exit(1)
+			}
+		}
+	}()
 
-	// 	// Handler:,
-	// }
+	/* --- --- --- */
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	ctx, cancel := context.WithTimeout(context.Background(), appConfig.App.ShutdownTimeout)
+	defer cancel()
+
+	if err := appServer.Shutdown(ctx); err != nil {
+		appLogger.Error("appServer shutdown failed", "error", err)
+		os.Exit(1)
+	}
 }

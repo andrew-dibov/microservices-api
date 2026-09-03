@@ -2,7 +2,10 @@ package clients
 
 import (
 	"context"
+	"microservices-api/internal/modules"
 	"microservices-api/pkg/api/conversion"
+
+	"google.golang.org/grpc/metadata"
 )
 
 func (client *ConversionClient) Close() error {
@@ -28,7 +31,11 @@ func (client *ConversionClient) Health(ctx context.Context) error {
 /* --- --- --- */
 
 func (client *ConversionClient) Convert(ctx context.Context, fromCurrency string, toCurrency string, amount float64) (*conversion.ConvertResponse, error) {
-	// REQ ID MIDDLEWARE
+	if reqID := modules.GetID(ctx); reqID != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
+	}
+
+	/* --- --- --- */
 
 	ctx, cancel := context.WithTimeout(ctx, client.conf.ConversionService.Timeout)
 	defer cancel()
