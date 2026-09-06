@@ -10,7 +10,7 @@ import (
 func NewAppRouter(handlers *AppRouterHandlers, appConfig *configs.AppConfig, appLogger *loggers.AppLogger) *AppRouter {
 	mux := http.NewServeMux()
 
-	// mux.HandleFunc("GET /", )
+	mux.HandleFunc("GET /", handlers.App.Root)
 
 	mux.HandleFunc("GET /livez", handlers.App.Livez)
 	mux.HandleFunc("GET /readyz", handlers.App.Readyz)

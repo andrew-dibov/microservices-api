@@ -12,8 +12,9 @@ import (
 
 func NewAppHandler(appConfig *configs.AppConfig, appLogger *loggers.AppLogger, currencyClient *clients.CurrencyClient, conversionClient *clients.ConversionClient, prometheusRegistry *registries.PrometheusRegistry) *AppHandler {
 	return &AppHandler{
-		appConfig:          appConfig,
-		appLogger:          appLogger,
+		appConfig: appConfig,
+		appLogger: appLogger,
+
 		currencyClient:     currencyClient,
 		conversionClient:   conversionClient,
 		prometheusRegistry: prometheusRegistry,
@@ -22,13 +23,23 @@ func NewAppHandler(appConfig *configs.AppConfig, appLogger *loggers.AppLogger, c
 
 /* --- --- --- */
 
-func (handler *AppHandler) Livez(res http.ResponseWriter, req *http.Request) {
+func (handler *AppHandler) respond(res http.ResponseWriter, status int, data any) {
 	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
+	res.WriteHeader(status)
 
-	if err := json.NewEncoder(res).Encode(map[string]interface{}{"status": "ok"}); err != nil {
-		handler.appLogger.Error("json response failed", "error", err)
+	if err := json.NewEncoder(res).Encode(data); err != nil {
+		handler.appLogger.Error("ConversionHandler json response failed", "error", err)
 	}
+}
+
+/* --- --- --- */
+
+func (handler *AppHandler) Root(res http.ResponseWriter, req *http.Request) {
+	handler.respond(res, http.StatusOK, map[string]interface{}{"app": handler.appConfig.App.Name})
+}
+
+func (handler *AppHandler) Livez(res http.ResponseWriter, req *http.Request) {
+	handler.respond(res, http.StatusOK, map[string]interface{}{"status": "ok"})
 }
 
 func (handler *AppHandler) Readyz(res http.ResponseWriter, req *http.Request) {
@@ -61,26 +72,15 @@ func (handler *AppHandler) Readyz(res http.ResponseWriter, req *http.Request) {
 
 	/* --- --- --- */
 
-	res.Header().Set("Content-Type", "application/json")
-
 	if status != "ok" {
-		res.WriteHeader(http.StatusServiceUnavailable)
+		handler.respond(res, http.StatusServiceUnavailable, result)
 	} else {
-		res.WriteHeader(http.StatusOK)
-	}
-
-	if err := json.NewEncoder(res).Encode(result); err != nil {
-		handler.appLogger.Error("json response failed", "error", err)
+		handler.respond(res, http.StatusOK, result)
 	}
 }
 
 func (handler *AppHandler) Healthz(res http.ResponseWriter, req *http.Request) {
-	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
-
-	if err := json.NewEncoder(res).Encode(map[string]interface{}{"status": "ok"}); err != nil {
-		handler.appLogger.Error("json response failed", "error", err)
-	}
+	handler.respond(res, http.StatusOK, map[string]interface{}{"status": "ok"})
 }
 
 func (handler *AppHandler) Metrics(res http.ResponseWriter, req *http.Request) {

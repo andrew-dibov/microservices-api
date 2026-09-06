@@ -31,14 +31,14 @@ func main() {
 
 	conversionClient, err := clients.NewConversionClient(&appConfig)
 	if err != nil {
-		appLogger.Error("conversionClient returned error", "error", err)
+		appLogger.Error("NewConversionClient returned error", "error", err)
 		os.Exit(1)
 	}
 	defer conversionClient.Close()
 
 	currencyClient, err := clients.NewCurrencyClient(&appConfig)
 	if err != nil {
-		appLogger.Error("currencyClient returned error", "error", err)
+		appLogger.Error("NewCurrencyClient returned error", "error", err)
 		os.Exit(1)
 	}
 	defer currencyClient.Close()

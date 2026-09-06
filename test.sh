@@ -10,8 +10,8 @@ BASE_URL="https://$HOST:$PORT"
 
 # ---
 
-echo ""
 echo "test 01"
+echo ""
 
 curl --cacert ./certs/cert.pem "$BASE_URL/livez"
 curl --cacert ./certs/cert.pem "$BASE_URL/readyz"
@@ -21,6 +21,7 @@ curl --cacert ./certs/cert.pem "$BASE_URL/healthz"
 
 echo ""
 echo "test 02"
+echo ""
 
 curl --cacert ./certs/cert.pem "$BASE_URL/api/v1/rate"
 curl --cacert ./certs/cert.pem -H "X-API-Key: wrong" "$BASE_URL/api/v1/rate"
@@ -29,6 +30,7 @@ curl --cacert ./certs/cert.pem -H "X-API-Key: wrong" "$BASE_URL/api/v1/rate"
 
 echo ""
 echo "test 03"
+echo ""
 
 curl --cacert ./certs/cert.pem -H "X-API-Key: $API_KEY" "$BASE_URL/api/v1/rate"
 
@@ -46,6 +48,7 @@ curl --cacert ./certs/cert.pem -H "X-API-Key: $API_KEY" "$BASE_URL/api/v1/rate?f
 
 echo ""
 echo "test 04"
+echo ""
 
 curl --cacert ./certs/cert.pem -H "X-API-Key: $API_KEY" "$BASE_URL/api/v1/rates"
 
@@ -58,6 +61,7 @@ curl --cacert ./certs/cert.pem -H "X-API-Key: $API_KEY" "$BASE_URL/api/v1/rates?
 
 echo ""
 echo "test 05"
+echo ""
 
 curl --cacert ./certs/cert.pem -X POST -H "X-API-Key: $API_KEY" "$BASE_URL/api/v1/convert"
 
@@ -86,6 +90,7 @@ curl --cacert ./certs/cert.pem -X POST -H "X-API-Key: $API_KEY" -H "Content-Type
 
 echo ""
 echo "test 06"
+echo ""
 
 curl --cacert ./certs/cert.pem -H "X-API-Key: $API_KEY" "$BASE_URL/api/v1/rate?fromCurrency=USD&toCurrency=EUR"
 curl --cacert ./certs/cert.pem -H "X-API-Key: $API_KEY" "$BASE_URL/api/v1/rates?baseCurrency=USD"
