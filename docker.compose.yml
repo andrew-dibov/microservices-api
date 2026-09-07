@@ -20,7 +20,7 @@ services:
       - SECURITY_KEY=/certs/key.pem
       #---
       - SECURITY_API_KEYS=test-25
-      - SECURITY_OPEN_ENDPOINTS=/lives,/readyz,/healthz,/metrics
+      - SECURITY_OPEN_ENDPOINTS=/livez,/readyz,/healthz,/metrics
       # ---
       - HISTORY_ADDRESS=history:50051
       - HISTORY_TIMEOUT=5s
@@ -58,8 +58,3 @@ services:
         CMD_NAME: ${CMD_NAME:-microservices-api}
         GO_VERSION: ${GO_VERSION:-1.25.0}
     container_name: microservices-api
-
-
-
-
-
