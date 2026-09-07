@@ -4,7 +4,7 @@ set -e
 API_KEY="${API_KEY:-test}"
 
 HOST="${HOST:-localhost}"
-PORT="${PORT:-8080}"
+PORT="${PORT:-2525}"
 
 BASE_URL="https://$HOST:$PORT"
 

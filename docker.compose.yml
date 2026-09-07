@@ -6,30 +6,39 @@ services:
     volumes:
       - ./certs:/certs:ro
     environment:
-      - PORT=8080
-      - PROD=false
-      - KEYS=test-1111,test-2222
-      - OPEN=/livez,/readyz,/healthz,/metrics
+      - APP_NAME=microservices-api
+      - APP_PROD=true
+      - APP_PORT=8080
+      #---
+      - APP_READ_TIMEOUT=5s
+      - APP_IDLE_TIMEOUT=5s
+      - APP_WRITE_TIMEOUT=5s
+      - APP_READYZ_TIMEOUT=2s
+      - APP_SHUTDOWN_TIMEOUT=5s
       # ---
-      - HIST_ADDR=history:50051
-      - CURR_ADDR=currency:50052
-      - CONV_ADDR=conversion:50053
+      - SECURITY_CERTIFICATE=/certs/cert.pem
+      - SECURITY_KEY=/certs/key.pem
+      #---
+      - SECURITY_API_KEYS=test-25
+      - SECURITY_OPEN_ENDPOINTS=/lives,/readyz,/healthz,/metrics
       # ---
-      - HIST_TOUT=5s
-      - CURR_TOUT=5s
-      - CONV_TOUT=5s
+      - HISTORY_ADDRESS=history:50051
+      - HISTORY_TIMEOUT=5s
+      - HISTORY_HEALTH_TIMEOUT=2s
       # ---
-      - READ_TOUT=10s
-      - IDLE_TOUT=15s
-      - WRITE_TOUT=20s
-      - SHUTDOWN_TOUT=25s
+      - CURRENCY_ADDRESS=currency:50052
+      - CURRENCY_TIMEOUT=5s
+      - CURRENCY_HEALTH_TIMEOUT=2s
+      - CURRENCY_RATE_LIMIT=5
+      - CURRENCY_RATE_BURST=10
+      - CURRENCY_RATES_LIMIT=5
+      - CURRENCY_RATES_BURST=10
       # ---
-      - RATE_LIM=5
-      - RATE_BUR=10
-      - RATES_LIM=5
-      - RATES_BUR=10
-      - CONVERT_LIM=5
-      - CONVERT_BUR=10
+      - CONVERSION_ADDRESS=conversion:50053
+      - CONVERSION_TIMEOUT=5s
+      - CONVERSION_HEALTH_TIMEOUT=2s
+      - CONVERSION_CONVERT_LIMIT=5
+      - CONVERSION_CONVERT_BURST=10
     healthcheck:
       test: ["CMD-SHELL", "wget --no-check-certificate --spider --quiet https://localhost:8080/healthz || exit 1"]
       retries: 3

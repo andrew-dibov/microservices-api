@@ -67,9 +67,9 @@ test: get_deps get_protoc gen_protos gen_certs build_container
 		-p 2525:8080 $(IMG_NAME) > /dev/null 2>&1
 	
 	@sleep 5
-	@chmod +x ./test.sh
+	@chmod +x ./scripts/*
 
-	@API_KEY=$(API_KEY) ./test.sh || (docker stop $(CMD_NAME)-test > /dev/null 2>&1 && exit 1)
+	@API_KEY=$(API_KEY) ./scripts/test.sh || (docker stop $(CMD_NAME)-test > /dev/null 2>&1 && exit 1)
 	@docker container stop $(CMD_NAME)-test > /dev/null 2>&1
 
 # ---

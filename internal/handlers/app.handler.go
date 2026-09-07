@@ -28,7 +28,7 @@ func (handler *AppHandler) respond(res http.ResponseWriter, status int, data any
 	res.WriteHeader(status)
 
 	if err := json.NewEncoder(res).Encode(data); err != nil {
-		handler.appLogger.Error("ConversionHandler json response failed", "error", err)
+		handler.appLogger.Error("AppHandler json response failed", "error", err)
 	}
 }
 
