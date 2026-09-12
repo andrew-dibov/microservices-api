@@ -19,10 +19,12 @@ type App struct {
 	Prod bool
 	Port string
 
-	ReadTimeout     time.Duration
-	IdleTimeout     time.Duration
-	WriteTimeout    time.Duration
-	ReadyzTimeout   time.Duration
+	ReadyzTimeout time.Duration
+
+	ReadTimeout  time.Duration
+	IdleTimeout  time.Duration
+	WriteTimeout time.Duration
+
 	ShutdownTimeout time.Duration
 }
 

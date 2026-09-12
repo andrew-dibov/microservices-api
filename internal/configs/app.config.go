@@ -13,10 +13,12 @@ func NewAppConfig() AppConfig {
 			Prod: modules.GetBooleanEnv("APP_PROD", false),
 			Port: modules.GetStringEnv("APP_PORT", "8080"),
 
-			ReadTimeout:     modules.GetDurationEnv("APP_READ_TIMEOUT", 5*time.Second),
-			IdleTimeout:     modules.GetDurationEnv("APP_IDLE_TIMEOUT", 5*time.Second),
-			WriteTimeout:    modules.GetDurationEnv("APP_WRITE_TIMEOUT", 5*time.Second),
-			ReadyzTimeout:   modules.GetDurationEnv("APP_READYZ_TIMEOUT", 2*time.Second),
+			ReadyzTimeout: modules.GetDurationEnv("APP_READYZ_TIMEOUT", 2*time.Second),
+
+			ReadTimeout:  modules.GetDurationEnv("APP_READ_TIMEOUT", 5*time.Second),
+			IdleTimeout:  modules.GetDurationEnv("APP_IDLE_TIMEOUT", 5*time.Second),
+			WriteTimeout: modules.GetDurationEnv("APP_WRITE_TIMEOUT", 5*time.Second),
+
 			ShutdownTimeout: modules.GetDurationEnv("APP_SHUTDOWN_TIMEOUT", 5*time.Second),
 		},
 
