@@ -31,7 +31,7 @@ func (client *CurrencyClient) Health(ctx context.Context) error {
 
 func (client *CurrencyClient) Rate(ctx context.Context, fromCurrency string, toCurrency string) (*currency.RateResponse, error) {
 	if reqID := modules.GetID(ctx); reqID != "" {
-		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
+		ctx = metadata.AppendToOutgoingContext(ctx, "x-request-id", reqID)
 	}
 
 	/* --- --- --- */
@@ -47,7 +47,7 @@ func (client *CurrencyClient) Rate(ctx context.Context, fromCurrency string, toC
 
 func (client *CurrencyClient) Rates(ctx context.Context, baseCurrency string) (*currency.RatesResponse, error) {
 	if reqID := modules.GetID(ctx); reqID != "" {
-		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
+		ctx = metadata.AppendToOutgoingContext(ctx, "x-request-id", reqID)
 	}
 
 	/* --- --- --- */

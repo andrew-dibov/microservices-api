@@ -23,9 +23,9 @@ func NewAppHandler(appConfig *configs.AppConfig, appLogger *loggers.AppLogger, c
 
 /* --- --- --- */
 
-func (handler *AppHandler) respond(res http.ResponseWriter, status int, data any) {
+func (handler *AppHandler) respond(res http.ResponseWriter, httpStatus int, data any) {
 	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(status)
+	res.WriteHeader(httpStatus)
 
 	if err := json.NewEncoder(res).Encode(data); err != nil {
 		handler.appLogger.Error("AppHandler json response failed", "error", err)
@@ -35,11 +35,11 @@ func (handler *AppHandler) respond(res http.ResponseWriter, status int, data any
 /* --- --- --- */
 
 func (handler *AppHandler) Root(res http.ResponseWriter, req *http.Request) {
-	handler.respond(res, http.StatusOK, map[string]interface{}{"app": handler.appConfig.App.Name})
+	handler.respond(res, http.StatusOK, map[string]any{"app": handler.appConfig.App.Name})
 }
 
 func (handler *AppHandler) Livez(res http.ResponseWriter, req *http.Request) {
-	handler.respond(res, http.StatusOK, map[string]interface{}{"status": "ok"})
+	handler.respond(res, http.StatusOK, map[string]any{"status": "ok"})
 }
 
 func (handler *AppHandler) Readyz(res http.ResponseWriter, req *http.Request) {
@@ -65,7 +65,7 @@ func (handler *AppHandler) Readyz(res http.ResponseWriter, req *http.Request) {
 		services["conversion"] = "ok"
 	}
 
-	result := map[string]interface{}{
+	result := map[string]any{
 		"services": services,
 		"status":   status,
 	}
@@ -80,7 +80,7 @@ func (handler *AppHandler) Readyz(res http.ResponseWriter, req *http.Request) {
 }
 
 func (handler *AppHandler) Healthz(res http.ResponseWriter, req *http.Request) {
-	handler.respond(res, http.StatusOK, map[string]interface{}{"status": "ok"})
+	handler.respond(res, http.StatusOK, map[string]any{"status": "ok"})
 }
 
 func (handler *AppHandler) Metrics(res http.ResponseWriter, req *http.Request) {

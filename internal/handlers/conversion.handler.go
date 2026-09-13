@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	"golang.org/x/time/rate"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func NewConversionHandler(appConfig *configs.AppConfig, appLogger *loggers.AppLogger, conversionClient *clients.ConversionClient) *ConversionHandler {
@@ -22,13 +24,36 @@ func NewConversionHandler(appConfig *configs.AppConfig, appLogger *loggers.AppLo
 
 /* --- --- --- */
 
-func (handler *ConversionHandler) respond(res http.ResponseWriter, status int, data any) {
+func (handler *ConversionHandler) respond(res http.ResponseWriter, httpStatus int, data any) {
 	res.Header().Set("Content-Type", "application/json")
-	res.WriteHeader(status)
+	res.WriteHeader(httpStatus)
 
 	if err := json.NewEncoder(res).Encode(data); err != nil {
 		handler.appLogger.Error("ConversionHandler json response failed", "error", err)
 	}
+}
+
+func (handler *ConversionHandler) respondGrpcError(res http.ResponseWriter, err error) {
+	httpStatus := http.StatusInternalServerError
+
+	switch status.Code(err) {
+	case codes.InvalidArgument:
+		httpStatus = http.StatusBadRequest
+	case codes.NotFound:
+		httpStatus = http.StatusNotFound
+	case codes.ResourceExhausted:
+		httpStatus = http.StatusTooManyRequests
+	case codes.Unavailable:
+		httpStatus = http.StatusServiceUnavailable
+	case codes.DeadlineExceeded:
+		httpStatus = http.StatusGatewayTimeout
+	}
+
+	if httpStatus >= 500 {
+		handler.appLogger.Error("ConversionService operation failed", "error", err)
+	}
+
+	handler.respond(res, httpStatus, map[string]string{"error": status.Convert(err).Message()})
 }
 
 /* --- --- --- */
@@ -92,8 +117,7 @@ func (handler *ConversionHandler) Convert(res http.ResponseWriter, req *http.Req
 	data, err := handler.conversionClient.Convert(ctx, convertRequest.FromCurrency, convertRequest.ToCurrency, convertRequest.Amount)
 
 	if err != nil {
-		handler.appLogger.Error("ConversionHandler convert operation failed", "error", err)
-		handler.respond(res, http.StatusInternalServerError, map[string]string{"error": "operation failed"})
+		handler.respondGrpcError(res, err)
 		return
 	}
 

@@ -12,7 +12,7 @@ func NewTraceMiddleware() *TraceMiddleware {
 
 func (middleware *TraceMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		id := req.Header.Get("X-Request-ID")
+		id := req.Header.Get("x-request-id")
 
 		if id == "" {
 			id = modules.GenID()
@@ -21,7 +21,7 @@ func (middleware *TraceMiddleware) Middleware(next http.Handler) http.Handler {
 		ctx := context.WithValue(req.Context(), modules.ID{}, id)
 		req = req.WithContext(ctx)
 
-		res.Header().Set("X-Request-ID", id)
+		res.Header().Set("x-request-id", id)
 		next.ServeHTTP(res, req)
 	})
 }

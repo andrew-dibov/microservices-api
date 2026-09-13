@@ -58,3 +58,10 @@ services:
         CMD_NAME: ${CMD_NAME:-microservices-api}
         GO_VERSION: ${GO_VERSION:-1.25.0}
     container_name: microservices-api
+   
+    networks:
+      - app
+
+networks:
+  app:
+    name: app

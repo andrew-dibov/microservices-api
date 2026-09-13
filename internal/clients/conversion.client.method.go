@@ -32,7 +32,7 @@ func (client *ConversionClient) Health(ctx context.Context) error {
 
 func (client *ConversionClient) Convert(ctx context.Context, fromCurrency string, toCurrency string, amount float64) (*conversion.ConvertResponse, error) {
 	if reqID := modules.GetID(ctx); reqID != "" {
-		ctx = metadata.AppendToOutgoingContext(ctx, "X-Request-ID", reqID)
+		ctx = metadata.AppendToOutgoingContext(ctx, "x-request-id", reqID)
 	}
 
 	/* --- --- --- */

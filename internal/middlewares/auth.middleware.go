@@ -37,7 +37,7 @@ func (middleware *AuthMiddleware) Middleware(next http.Handler, appConfig *confi
 
 		if !appConfig.Security.ApiKeys[apiKey] {
 			appLogger.Warn("AuthMiddleware : wrong key",
-				"api_key", apiKey,
+				"api_key", apiKey[:min(6, len(apiKey))],
 				"path", req.URL.Path,
 				"method", req.Method,
 			)
