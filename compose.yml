@@ -1,0 +1,7 @@
+networks:
+  app:
+
+# ---
+
+include:
+  - compose.app.yml
