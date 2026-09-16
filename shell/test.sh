@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-API_KEY="${API_KEY:-test}"
+API_KEY="${API_KEY:-test-25}"
 
 HOST="${HOST:-localhost}"
-PORT="${PORT:-2525}"
+PORT="${PORT:-8080}"
 
 BASE_URL="https://$HOST:$PORT"
 
