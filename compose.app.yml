@@ -21,7 +21,7 @@ x-healthcheck: &healthcheck
 # ---
 
 services:
-  currency:
+  api:
     <<: *base
     image: ${CMD_NAME:-microservices-api}:latest
     container_name: ${CMD_NAME:-microservices-api}
@@ -31,6 +31,7 @@ services:
       dockerfile: Dockerfile
       args:
         CMD_NAME: ${CMD_NAME:-microservices-api}
+        APP_PORT: ${APP_PORT:-8080}
         GO_VERSION: ${GO_VERSION:-1.25.0}
 
     ports:
@@ -42,42 +43,10 @@ services:
       - app
 
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-check-certificate --spider --quiet https://localhost:8080/healthz || exit 1"]
+      test: ["CMD-SHELL", "wget --no-check-certificate --spider --quiet https://localhost:${APP_PORT:-8080}/healthz || exit 1"]
       <<: *healthcheck
-
-    # ---
 
     env_file: [".env"]
     environment:
-      - APP_NAME=${CMD_NAME:-microservices-api}
-      - APP_PROD=true
-      - APP_PORT=${APP_PORT:-8080}
-      #---
-      - APP_READ_TIMEOUT=5s
-      - APP_IDLE_TIMEOUT=5s
-      - APP_WRITE_TIMEOUT=5s
-      - APP_READYZ_TIMEOUT=2s
-      - APP_SHUTDOWN_TIMEOUT=5s
-      # ---
       - SECURITY_CERTIFICATE=/certs/cert.pem
       - SECURITY_KEY=/certs/key.pem
-      #---
-      - SECURITY_OPEN_ENDPOINTS=/livez,/readyz,/healthz,/metrics
-      # ---
-      - HISTORY_ADDRESS=history:50051
-      - HISTORY_TIMEOUT=5s
-      - HISTORY_HEALTH_TIMEOUT=2s
-      # ---
-      - CURRENCY_ADDRESS=currency:50052
-      - CURRENCY_TIMEOUT=5s
-      - CURRENCY_HEALTH_TIMEOUT=2s
-      - CURRENCY_RATE_LIMIT=5
-      - CURRENCY_RATE_BURST=10
-      - CURRENCY_RATES_LIMIT=5
-      - CURRENCY_RATES_BURST=10
-      # ---
-      - CONVERSION_ADDRESS=conversion:50053
-      - CONVERSION_TIMEOUT=5s
-      - CONVERSION_HEALTH_TIMEOUT=2s
-      - CONVERSION_CONVERT_LIMIT=5
-      - CONVERSION_CONVERT_BURST=10

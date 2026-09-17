@@ -1,8 +1,8 @@
 .*
 *.pb.go
 
-/bin
 /certs
+/pkg
 
 !.gitignore
 !.dockerignore

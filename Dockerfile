@@ -1,5 +1,6 @@
-ARG GO_VERSION=1.25
 ARG CMD_NAME="microservices-api"
+ARG APP_PORT=8080
+ARG GO_VERSION=1.25.0
 
 FROM golang:${GO_VERSION}-alpine AS build
 ARG CMD_NAME
@@ -16,6 +17,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 
 
 FROM alpine:latest
+ARG APP_PORT
 
 RUN apk --no-cache add ca-certificates tzdata
 RUN adduser -D -g '' appuser
@@ -26,7 +28,7 @@ COPY --from=build /bin/app /app/
 RUN chown -R appuser:appuser /app && chmod +x /app/app
 USER appuser
 
-ENV PORT=8080
-EXPOSE ${PORT}
+ENV APP_PORT=${APP_PORT}
+EXPOSE ${APP_PORT}
 
 CMD ["./app"]

@@ -1,92 +1,65 @@
-CMD_NAME := microservices-api
-
-BIN_NAME := $(CMD_NAME)-bin
-IMG_NAME := $(CMD_NAME):latest
-
-API_KEY := $(CMD_NAME)-key
-
+.PHONY: install run start stop up down test clean help
 .DEFAULT_GOAL := help
-#.PHONY:
+
+-include .env
+export
 
 # ---
 
-get_deps:
+install:
 	@go mod tidy
 
-get_protoc:
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-
-# ---
-
-gen_protos:
+	
 	@protoc --go_out=. --go-grpc_out=. proto/currency/currency.proto
 	@protoc --go_out=. --go-grpc_out=. proto/conversion/conversion.proto
 
-gen_certs:
 	@mkdir -p certs
 	@[ -f certs/cert.pem ] || (cd certs && openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=localhost")
+	
+	@docker image build \
+		--build-arg GO_VERSION=${GO_VERSION} \
+		--build-arg CMD_NAME=${CMD_NAME} \
+		--build-arg APP_PORT=${APP_PORT} \
+		-t ${CMD_NAME}:latest .
 
-# ---
+run:
+	@go run cmd/${CMD_NAME}/main.go
 
-build_bin: gen_protos gen_certs
-	@CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o bin/$(BIN_NAME) cmd/$(CMD_NAME)/main.go
-
-run_bin: build_bin
-	@SECURITY_CERTIFICATE=./certs/cert.pem SECURITY_KEY=./certs/key.pem ./bin/$(BIN_NAME)
-
-# ---
-
-run_app: get_deps get_protoc gen_protos gen_certs
-	@SECURITY_CERTIFICATE=./certs/cert.pem SECURITY_KEY=./certs/key.pem go run cmd/$(CMD_NAME)/main.go
-
-# ---
-
-build_container:
-	@docker image build -t $(IMG_NAME) . > /dev/null 2>&1
-
-run_container: build_container
-	@docker container run -d --rm --name $(CMD_NAME) \
-		-v ./certs:/certs:ro \
+start:
+	@docker container run -d --rm \
+		--env-file .env \
 		-e SECURITY_CERTIFICATE=/certs/cert.pem \
 		-e SECURITY_KEY=/certs/key.pem \
-		-e SECURITY_API_KEYS=$(API_KEY) \
-		-e APP_PROD=true \
-		-p 8080:8080 $(IMG_NAME)
+		-p ${HOST_PORT}:${APP_PORT} \
+		-v ./certs:/certs:ro \
+		--name ${CMD_NAME} \
+		${CMD_NAME}:latest
+	@docker container ps --filter name=${CMD_NAME}
 
-stop_container:
-	@docker container stop $(CMD_NAME) > /dev/null 2>&1
+stop:
+	@docker container stop ${CMD_NAME} > /dev/null 2>&1
 
-# ---
+up:
+	@docker compose build
+	@docker compose up -d --no-build
 
-up_compose:
-	@docker compose up -d
-
-down_compose:
+down:
 	@docker compose down -v
 
-# ---
+test:
+	@bash shell/test.sh
 
 clean:
-	@rm -rf bin certs
-
-# ---
+	@rm -rf certs
 
 help:
-	@echo "get_deps        установить зависимости"
-	@echo "get_protoc      установить protoc"
-
-	@echo "gen_protos      сгенерировать .proto"
-	@echo "gen_certs       сгенерировать сертификаты"
-
-	@echo "build_bin       собрать бинарник"
-	@echo "run_bin         запустить бинарник"
-
-	@echo "run_app         запустить приложение"
-
-	@echo "build_container собрать образ"
-	@echo "run_container   запустить контейнер"
-	@echo "stop_container  остановить контейнер"
-
-	@echo "clean           удалить сертификаты и бинарник"
-	@echo "help            показать справку"
+	@echo "install : установить зависимости и собрать docker образ"
+	@echo "run     : запустить приложение"
+	@echo "start   : запустить docker контейнер"
+	@echo "stop    : остановить docker контейнер"
+	@echo "up      : запустить docker compose проект"
+	@echo "down    : остановить docker compose проект"
+	@echo "test    : запустить тестирование"
+	@echo "clean   : удалить сертификаты"
