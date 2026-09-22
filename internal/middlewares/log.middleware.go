@@ -21,8 +21,8 @@ func (middleware *LogMiddleware) Middleware(next http.Handler, appLogger *logger
 
 		reqProcessed := time.Since(reqNow).Milliseconds()
 
-		appLogger.Info("LogMiddleware : processed",
-			"id", reqID,
+		appLogger.Info("LogMiddleware processed",
+			"request_id", reqID,
 			"path", req.URL.Path,
 			"method", req.Method,
 			"status", newRes.status,

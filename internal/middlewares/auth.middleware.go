@@ -21,7 +21,7 @@ func (middleware *AuthMiddleware) Middleware(next http.Handler, appConfig *confi
 		apiKey := req.Header.Get("X-API-Key")
 
 		if apiKey == "" {
-			appLogger.Warn("AuthMiddleware : absent key",
+			appLogger.Warn("AuthMiddleware absent key",
 				"path", req.URL.Path,
 				"method", req.Method,
 			)
@@ -30,13 +30,13 @@ func (middleware *AuthMiddleware) Middleware(next http.Handler, appConfig *confi
 			res.WriteHeader(http.StatusUnauthorized)
 
 			if err := json.NewEncoder(res).Encode(map[string]string{"error": "absent key"}); err != nil {
-				appLogger.Error("AuthMiddleware : json response failed", "error", err)
+				appLogger.Error("AuthMiddleware json response failed", "error", err)
 			}
 			return
 		}
 
 		if !appConfig.Security.ApiKeys[apiKey] {
-			appLogger.Warn("AuthMiddleware : wrong key",
+			appLogger.Warn("AuthMiddleware wrong key",
 				"api_key", apiKey[:min(6, len(apiKey))],
 				"path", req.URL.Path,
 				"method", req.Method,
@@ -46,7 +46,7 @@ func (middleware *AuthMiddleware) Middleware(next http.Handler, appConfig *confi
 			res.WriteHeader(http.StatusUnauthorized)
 
 			if err := json.NewEncoder(res).Encode(map[string]string{"error": "wrong key"}); err != nil {
-				appLogger.Error("AuthMiddleware : json response failed", "error", err)
+				appLogger.Error("AuthMiddleware json response failed", "error", err)
 			}
 			return
 		}

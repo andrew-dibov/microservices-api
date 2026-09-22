@@ -28,8 +28,7 @@ func NewConversionClient(appConfig *configs.AppConfig) (*ConversionClient, error
 				"retryableStatusCodes": ["UNAVAILABLE"]
 				}
 			}]
-		}`),
-	)
+		}`))
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ConversionClient : %w", err)

@@ -24,8 +24,7 @@ func main() {
 		"prod", appConfig.App.Prod,
 		"history_address", appConfig.HistoryService.Address,
 		"currency_address", appConfig.CurrencyService.Address,
-		"conversion_address", appConfig.ConversionService.Address,
-	)
+		"conversion_address", appConfig.ConversionService.Address)
 
 	/* --- --- --- */
 

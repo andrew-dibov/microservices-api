@@ -28,8 +28,7 @@ func NewCurrencyClient(appConfig *configs.AppConfig) (*CurrencyClient, error) {
 				"retryableStatusCodes": ["UNAVAILABLE"]
 				}
 			}]
-		}`),
-	)
+		}`))
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create CurrencyClient : %w", err)

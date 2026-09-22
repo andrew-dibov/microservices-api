@@ -2,6 +2,7 @@ ARG CMD_NAME="microservices-api"
 ARG APP_PORT=8080
 ARG GO_VERSION=1.25.0
 
+
 FROM golang:${GO_VERSION}-alpine AS build
 ARG CMD_NAME
 

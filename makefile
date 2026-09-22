@@ -52,7 +52,7 @@ test:
 	@bash shell/test.sh
 
 clean:
-	@rm -rf certs
+	@rm -rf certs pkg
 
 help:
 	@echo "install : установить зависимости и собрать docker образ"
