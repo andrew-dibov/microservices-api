@@ -40,7 +40,7 @@ services:
       - ./certs:/certs:ro
 
     networks:
-      - app
+      - microservices
 
     healthcheck:
       test: ["CMD-SHELL", "wget --no-check-certificate --spider --quiet https://localhost:${APP_PORT:-8080}/healthz || exit 1"]

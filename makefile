@@ -42,6 +42,10 @@ stop:
 	@docker container stop ${CMD_NAME} > /dev/null 2>&1
 
 up:
+	@docker network inspect microservices >/dev/null 2>&1 || docker network create microservices
+	@docker network inspect microservices-data >/dev/null 2>&1 || docker network create microservices-data
+	@docker network inspect microservices-infra >/dev/null 2>&1 || docker network create microservices-infra
+	
 	@docker compose build
 	@docker compose up -d --no-build
 
@@ -53,6 +57,7 @@ test:
 
 clean:
 	@rm -rf certs pkg
+	@docker network rm microservices microservices-data microservices-infra
 
 help:
 	@echo "install : установить зависимости и собрать docker образ"
@@ -62,4 +67,4 @@ help:
 	@echo "up      : запустить docker compose проект"
 	@echo "down    : остановить docker compose проект"
 	@echo "test    : запустить тестирование"
-	@echo "clean   : удалить сертификаты"
+	@echo "clean   : удалить сертификаты и сети compose"

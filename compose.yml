@@ -1,5 +1,15 @@
 networks:
-  app:
+  microservices:
+    name: microservices
+    external: true
+
+  microservices-data:
+    name: microservices-data
+    external: true
+
+  microservices-infra:
+    name: microservices-infra
+    external: true
 
 # ---
 
