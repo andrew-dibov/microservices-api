@@ -8,6 +8,7 @@ ARG CMD_NAME
 
 WORKDIR /build
 
+RUN apk add --no-cache ca-certificates tzdata
 ENV GOPROXY=https://goproxy.io,direct
 
 COPY go.mod go.sum ./
