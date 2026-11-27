@@ -12,7 +12,7 @@ RUN apk add --no-cache ca-certificates tzdata
 ENV GOPROXY=https://goproxy.cn,direct
 
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build \
