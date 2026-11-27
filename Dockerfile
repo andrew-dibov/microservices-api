@@ -8,6 +8,8 @@ ARG CMD_NAME
 
 WORKDIR /build
 
+ENV GOPROXY=https://goproxy.io,direct
+
 COPY go.mod go.sum ./
 RUN go mod download
 
