@@ -8,9 +8,6 @@ ARG CMD_NAME
 
 WORKDIR /build
 
-RUN apk add --no-cache ca-certificates tzdata
-# ENV GOPROXY=https://goproxy.cn,direct
-
 COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod go mod download
 
